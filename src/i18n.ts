@@ -42,6 +42,7 @@ const es: Dict = {
 
   "sidebar.panels": "Paneles",
   "sidebar.collapse": "Colapsar",
+  "sidebar.resize": "Ajustar ancho del panel",
   "sidebar.expand": "Expandir paneles",
   "sidebar.newPanel": "Nuevo panel",
   "sidebar.panelName": "Nombre del panel",
@@ -232,6 +233,7 @@ const en: Dict = {
 
   "sidebar.panels": "Panels",
   "sidebar.collapse": "Collapse",
+  "sidebar.resize": "Resize panel width",
   "sidebar.expand": "Expand panels",
   "sidebar.newPanel": "New panel",
   "sidebar.panelName": "Panel name",

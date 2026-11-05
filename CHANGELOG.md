@@ -22,6 +22,8 @@ Maintenance release focused on reliability and consistency.
   searchable list, accepts a new classifier, or removes it.
 - Shortcuts in the picker for Home, Documents, Desktop, Downloads, and the bundled
   examples, plus the last folder used is remembered.
+- Resizable sidebar: drag the divider on its right edge or use the arrow keys, with the
+  width remembered between sessions and a double click to restore the default.
 
 ### Fixed
 

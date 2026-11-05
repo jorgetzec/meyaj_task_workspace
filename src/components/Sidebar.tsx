@@ -24,6 +24,27 @@ type Editor = {
   error: string | null;
 };
 
+const MIN_WIDTH = 180;
+const MAX_WIDTH = 460;
+const DEFAULT_WIDTH = 208;
+const WIDTH_KEY = "meyaj-sidebar-width";
+
+function clampWidth(value: number): number {
+  return Math.round(Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, value)));
+}
+
+function readStoredWidth(): number {
+  try {
+    const stored = Number(localStorage.getItem(WIDTH_KEY));
+    if (Number.isFinite(stored) && stored >= MIN_WIDTH && stored <= MAX_WIDTH) {
+      return Math.round(stored);
+    }
+  } catch {
+    // Storage disabled: keep the default width.
+  }
+  return DEFAULT_WIDTH;
+}
+
 export default function Sidebar() {
   const t = useT();
   const panels = useAppStore((s) => s.panels);
@@ -35,6 +56,9 @@ export default function Sidebar() {
   const deletePanel = useAppStore((s) => s.deletePanel);
 
   const [collapsed, setCollapsed] = useState(false);
+  const [width, setWidth] = useState(readStoredWidth);
+  const widthRef = useRef(width);
+  const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
   const [showArchived, setShowArchived] = useState(false);
   const [editor, setEditor] = useState<Editor | null>(null);
   const editorRef = useRef<Editor | null>(null);
@@ -46,6 +70,32 @@ export default function Sidebar() {
   const errorId = useId();
   const activePanels = panels.filter((p) => !p.archived);
   const archivedPanels = panels.filter((p) => p.archived);
+
+  const persistWidth = (value: number) => {
+    widthRef.current = value;
+    try {
+      localStorage.setItem(WIDTH_KEY, String(value));
+    } catch {
+      // Storage disabled: the width lasts for this session only.
+    }
+  };
+
+  const applyWidth = (value: number) => {
+    const next = clampWidth(value);
+    widthRef.current = next;
+    setWidth(next);
+  };
+
+  const endDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current) return;
+    dragRef.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    document.body.style.cursor = "";
+    document.body.style.userSelect = "";
+    persistWidth(widthRef.current);
+  };
 
 
   const askToDelete = (panel: Panel) => {
@@ -176,7 +226,7 @@ export default function Sidebar() {
               type="button"
               draggable={false}
               aria-current={active ? "true" : undefined}
-              title={t("sidebar.renameHint")}
+              title={`${p.title} · ${t("sidebar.renameHint")}`}
               onClick={() => setActivePanel(p.id)}
               onDoubleClick={() => beginEditing("rename", p.id, p.title)}
               onKeyDown={(e) => {
@@ -255,7 +305,10 @@ export default function Sidebar() {
 
   return (
     <>
-    <aside className="flex w-52 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--bg-elevated)]">
+    <aside
+      style={{ width }}
+      className="relative flex shrink-0 flex-col border-r border-[var(--border)] bg-[var(--bg-elevated)]"
+    >
       <div className="flex items-center justify-between px-3 py-2">
         <h2 className="text-[0.625rem] font-semibold uppercase tracking-[0.14em] text-[var(--text-faint)]">
           {t("sidebar.panels")}
@@ -308,6 +361,45 @@ export default function Sidebar() {
           </button>
         )}
       </div>
+
+      <div
+        role="separator"
+        aria-orientation="vertical"
+        aria-label={t("sidebar.resize")}
+        aria-valuenow={width}
+        aria-valuemin={MIN_WIDTH}
+        aria-valuemax={MAX_WIDTH}
+        tabIndex={0}
+        title={t("sidebar.resize")}
+        onPointerDown={(event) => {
+          if (event.button !== 0) return;
+          event.preventDefault();
+          dragRef.current = { startX: event.clientX, startWidth: widthRef.current };
+          event.currentTarget.setPointerCapture(event.pointerId);
+          document.body.style.cursor = "col-resize";
+          document.body.style.userSelect = "none";
+        }}
+        onPointerMove={(event) => {
+          const drag = dragRef.current;
+          if (!drag) return;
+          applyWidth(drag.startWidth + (event.clientX - drag.startX));
+        }}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onDoubleClick={() => {
+          applyWidth(DEFAULT_WIDTH);
+          persistWidth(clampWidth(DEFAULT_WIDTH));
+        }}
+        onKeyDown={(event) => {
+          if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+          event.preventDefault();
+          const step = event.shiftKey ? 48 : 16;
+          const next = clampWidth(widthRef.current + (event.key === "ArrowRight" ? step : -step));
+          applyWidth(next);
+          persistWidth(next);
+        }}
+        className="absolute right-[-3px] top-0 z-20 h-full w-[5px] cursor-col-resize touch-none bg-transparent transition hover:bg-[var(--accent)]/40 focus-visible:bg-[var(--accent)]/60 focus-visible:outline-none"
+      />
     </aside>
 
     {deleteTarget && (
