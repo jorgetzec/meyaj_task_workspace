@@ -1,7 +1,7 @@
 {
   "name": "meyaj",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A local-first desktop task workspace with nested tasks and Markdown portability",
   "author": "Jorge A. Tzec-Interián",
   "license": "PolyForm-Noncommercial-1.0.0",

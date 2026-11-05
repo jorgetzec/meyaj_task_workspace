@@ -1,8 +1,6 @@
 import { X } from "lucide-react";
 import { useRef, useState } from "react";
 import { isTauri } from "@tauri-apps/api/core";
-import { open as openDialog } from "@tauri-apps/plugin-dialog";
-import { readTextFile } from "@tauri-apps/plugin-fs";
 import { useAppStore } from "../stores/useAppStore";
 import { useT } from "../i18n";
 import type { Lang, Theme } from "../types";
@@ -66,6 +64,7 @@ export default function SettingsModal() {
   const importTheme = useAppStore((s) => s.importTheme);
   const clearCustomTheme = useAppStore((s) => s.clearCustomTheme);
   const setError = useAppStore((s) => s.setError);
+  const setFilePicker = useAppStore((s) => s.setFilePicker);
 
   const [newClassifier, setNewClassifier] = useState("");
   const themeFileInput = useRef<HTMLInputElement>(null);
@@ -85,22 +84,12 @@ export default function SettingsModal() {
     importTheme(parsed.name || t("settings.customThemeName"), parsed.vars);
   };
 
-  const handleImportTheme = async () => {
+  const handleImportTheme = () => {
     if (!isTauri()) {
       themeFileInput.current?.click();
       return;
     }
-    try {
-      const selected = await openDialog({
-        multiple: false,
-        directory: false,
-        filters: [{ name: "JSON", extensions: ["json"] }],
-      });
-      if (!selected || Array.isArray(selected)) return;
-      importThemeContent(await readTextFile(selected));
-    } catch {
-      setError(t("settings.invalidTheme"));
-    }
+    setFilePicker({ mode: "theme", extensions: ["json"] });
   };
 
   const handleThemeFile = async (file: File) => {

@@ -35,3 +35,8 @@ local-data/
 *.njsproj
 *.sln
 *.sw?
+
+# Release notes and publishing guide are local working files;
+# the published text lives in the GitHub release itself.
+RELEASE_NOTES.md
+RELEASING.md

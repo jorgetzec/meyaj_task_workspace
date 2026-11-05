@@ -8,14 +8,15 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { Plus } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo } from "react";
 import { useAppStore } from "../stores/useAppStore";
 import { useT } from "../i18n";
-import { groupTasksByMonth, groupTasksByProject } from "../utils/tasks";
-import { formatMonth, yyyymmdd } from "../utils/format";
+import { buildTree, groupTasksByMonth, groupTasksByProject } from "../utils/tasks";
+import { formatMonth } from "../utils/format";
 import ProjectSection from "./ProjectSection";
 import HistoryView from "./HistoryView";
 import TaskInput from "./TaskInput";
+import { TaskItem } from "./TaskItem";
 import TabBar from "./TabBar";
 import ThemedSelect from "./ThemedSelect";
 
@@ -30,28 +31,15 @@ export default function CentralPanel() {
   const moveTask = useAppStore((s) => s.moveTask);
   const setProjectFormOpen = useAppStore((s) => s.setProjectFormOpen);
   const reorderProjects = useAppStore((s) => s.reorderProjects);
-  const completeTask = useAppStore((s) => s.completeTask);
   const language = useAppStore((s) => s.language);
   const lastCreatedTaskId = useAppStore((s) => s.lastCreatedTaskId);
   const clearTaskHighlight = useAppStore((s) => s.clearTaskHighlight);
-  const monthListRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!lastCreatedTaskId) return;
     const timer = window.setTimeout(() => clearTaskHighlight(), 2400);
     return () => window.clearTimeout(timer);
   }, [lastCreatedTaskId, clearTaskHighlight]);
-
-  useEffect(() => {
-    if (currentView !== "month" || !lastCreatedTaskId) return;
-    const frame = window.requestAnimationFrame(() => {
-      const row = Array.from(monthListRef.current?.querySelectorAll<HTMLElement>("[data-task-id]") ?? [])
-        .find((element) => element.dataset.taskId === lastCreatedTaskId);
-      row?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" });
-      row?.focus({ preventScroll: true });
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [currentView, lastCreatedTaskId]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -109,7 +97,28 @@ export default function CentralPanel() {
   const visible = currentView === "project" ? filteredGroup : grouped;
   const monthGroups = groupTasksByMonth(tasks);
 
-  const codeOf = (task: { classifier: string | null }) => task.classifier ?? "";
+  // Month view rows reuse the same task component as the project views, so a
+  // parent keeps its subtree instead of showing as a flat line of text.
+  const nodeById = useMemo(() => {
+    const map = new Map<string, ReturnType<typeof buildTree>[number]>();
+    const walk = (list: ReturnType<typeof buildTree>) => {
+      for (const node of list) {
+        map.set(node.task.id, node);
+        walk(node.children);
+      }
+    };
+    walk(buildTree(tasks));
+    return map;
+  }, [tasks]);
+
+  const monthRoots = (items: typeof tasks, month: string) => {
+    const parents = new Map(tasks.map((task) => [task.id, task]));
+    return items.filter((task) => {
+      if (!task.parentTaskId) return true;
+      const parent = parents.get(task.parentTaskId);
+      return !parent || (parent.createdAt || "").slice(0, 7) !== month;
+    });
+  };
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -143,45 +152,20 @@ export default function CentralPanel() {
         {currentView === "history" ? (
           <HistoryView />
         ) : currentView === "month" ? (
-          <div ref={monthListRef}>
-            {monthGroups.map((g) => (
-              <section key={g.month} className="py-1">
+          <div>
+            {monthGroups.map((group) => (
+              <section key={group.month} className="py-1">
                 <header className="flex items-baseline gap-2 px-2 py-1.5">
                   <span className="text-sm font-semibold text-[var(--text)]">
-                    {formatMonth(g.month, language)}
+                    {formatMonth(group.month, language)}
                   </span>
                   <span className="text-xs text-[var(--text-faint)]">
-                    {g.items.length} {t("month.tasks")}
+                    {group.items.length} {t("month.tasks")}
                   </span>
                 </header>
-                {g.items.map((task) => {
-                  const hasChildren = tasks.some((child) => child.parentTaskId === task.id);
-                  return (
-                    <div
-                      key={task.id}
-                      data-task-id={task.id}
-                      tabIndex={-1}
-                      className={`group flex items-start gap-2 rounded px-2 py-[3px] hover:bg-[var(--bg-hover)] ${
-                        task.id === lastCreatedTaskId ? "task-new" : ""
-                      }`}
-                    >
-                      <button
-                        onClick={() => completeTask(task.id)}
-                        disabled={hasChildren}
-                        className={`checkbox mt-[5px] ${hasChildren ? "opacity-40" : ""}`}
-                        title={hasChildren ? t("task.completeSubtasks") : t("task.complete")}
-                        aria-label={t("task.complete")}
-                      >
-                        <span className="dot" />
-                      </button>
-                      <div className="mono min-w-0 flex-1 text-[0.8125rem] leading-[1.6] text-[var(--text)]">
-                        <span className="text-[var(--text-faint)]">
-                          {yyyymmdd(task.createdAt)}_{codeOf(task)} |{" "}
-                        </span>
-                        {task.content}
-                      </div>
-                    </div>
-                  );
+                {monthRoots(group.items, group.month).map((task) => {
+                  const node = nodeById.get(task.id);
+                  return node ? <TaskItem key={task.id} node={node} depth={0} /> : null;
                 })}
               </section>
             ))}

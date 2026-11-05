@@ -71,3 +71,12 @@ export interface Tab {
 export type Theme = "dark" | "light" | "dracula" | "nord" | "custom";
 
 export type Lang = "es" | "en";
+
+export type FilePickerMode = "open" | "save" | "theme";
+
+/** Request that opens the in-app file picker instead of the native dialog. */
+export interface FilePickerRequest {
+  mode: FilePickerMode;
+  extensions?: string[];
+  defaultName?: string;
+}

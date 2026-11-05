@@ -674,6 +674,36 @@ pub async fn update_task(
 }
 
 #[tauri::command]
+pub async fn set_task_classifier(
+    task_id: String,
+    classifier: Option<String>,
+    state: State<'_, AppState>,
+) -> CmdResult<PanelState> {
+    let pool = &state.pool;
+
+    let normalized = classifier
+        .map(|value| value.trim().to_uppercase())
+        .filter(|value| !value.is_empty());
+
+    if let Some(name) = normalized.as_deref() {
+        ensure_classifier(pool, name).await.map_err(err)?;
+    }
+
+    sqlx::query("UPDATE task SET classifier = ? WHERE id = ?")
+        .bind(normalized.as_deref())
+        .bind(&task_id)
+        .execute(pool)
+        .await
+        .map_err(err)?;
+
+    let panel_id = panel_id_for_task(pool, &task_id)
+        .await
+        .map_err(err)?
+        .unwrap_or_default();
+    build_panel_state(pool, &panel_id).await.map_err(err)
+}
+
+#[tauri::command]
 pub async fn delete_task(task_id: String, state: State<'_, AppState>) -> CmdResult<PanelState> {
     let pool = &state.pool;
     let panel_id = panel_id_for_task(pool, &task_id)
@@ -1176,6 +1206,137 @@ pub async fn reorder_project_tasks(
     build_panel_state(pool, &panel_id).await.map_err(err)
 }
 
+/// Reads a UTF-8 text file chosen in the file dialog.
+///
+/// Reading in the backend avoids depending on the fs plugin scope for paths
+/// the user picks outside the application directories.
+#[tauri::command]
+pub async fn read_text_file(path: String) -> CmdResult<String> {
+    let shown = path.clone();
+    tauri::async_runtime::spawn_blocking(move || std::fs::read(&path))
+        .await
+        .map_err(err)?
+        .map(|bytes| String::from_utf8_lossy(&bytes).into_owned())
+        .map_err(|e| format!("{}: {e}", shown))
+}
+
+/// One entry of a directory listing for the in-app file picker.
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DirEntryInfo {
+    pub name: String,
+    pub path: String,
+    pub is_dir: bool,
+}
+
+/// Shortcut shown in the picker sidebar.
+#[derive(serde::Serialize)]
+pub struct PlaceInfo {
+    pub kind: String,
+    pub path: String,
+}
+
+const DIR_LIST_LIMIT: usize = 2000;
+
+/// Lists a directory without going through the Windows shell dialog.
+///
+/// The native picker depends on the shell namespace, which can block on cloud
+/// providers and on the search index. Plain directory reads cannot hang the UI.
+#[tauri::command]
+pub async fn list_dir(path: String) -> CmdResult<Vec<DirEntryInfo>> {
+    let shown = path.clone();
+    tauri::async_runtime::spawn_blocking(move || -> std::io::Result<Vec<DirEntryInfo>> {
+        let mut entries = Vec::new();
+        for entry in std::fs::read_dir(&path)?.flatten().take(DIR_LIST_LIMIT) {
+            let is_dir = match entry.file_type() {
+                Ok(kind) => kind.is_dir(),
+                Err(_) => continue,
+            };
+            entries.push(DirEntryInfo {
+                name: entry.file_name().to_string_lossy().into_owned(),
+                path: entry.path().to_string_lossy().into_owned(),
+                is_dir,
+            });
+        }
+        entries.sort_by(|a, b| {
+            b.is_dir
+                .cmp(&a.is_dir)
+                .then_with(|| a.name.to_lowercase().cmp(&b.name.to_lowercase()))
+        });
+        Ok(entries)
+    })
+    .await
+    .map_err(err)?
+    .map_err(|e| format!("{}: {e}", shown))
+}
+
+/// Well-known folders offered as picker shortcuts.
+#[tauri::command]
+pub fn user_places(app: tauri::AppHandle) -> Vec<PlaceInfo> {
+    use tauri::Manager;
+
+    let paths = app.path();
+    let mut places: Vec<PlaceInfo> = Vec::new();
+    let mut push = |kind: &str, dir: Option<std::path::PathBuf>| {
+        if let Some(dir) = dir {
+            let path = dir.to_string_lossy().into_owned();
+            if !places.iter().any(|p| p.path == path) {
+                places.push(PlaceInfo {
+                    kind: kind.to_string(),
+                    path,
+                });
+            }
+        }
+    };
+
+    push("home", paths.home_dir().ok());
+    push("documents", paths.document_dir().ok());
+    push("desktop", paths.desktop_dir().ok());
+    push("downloads", paths.download_dir().ok());
+
+    if let Ok(resources) = paths.resource_dir() {
+        let examples = resources.join("examples");
+        if examples.is_dir() {
+            push("examples", Some(examples));
+        }
+    }
+
+    places
+}
+
+/// Writes UTF-8 text chosen in the picker.
+#[tauri::command]
+pub async fn write_text_file(path: String, contents: String) -> CmdResult<()> {
+    let shown = path.clone();
+    tauri::async_runtime::spawn_blocking(move || std::fs::write(&path, contents))
+        .await
+        .map_err(err)?
+        .map_err(|e| format!("{}: {e}", shown))
+}
+
+/// Starting directory for the import dialog.
+///
+/// Pointing the native dialog at a plain filesystem folder keeps the shell
+/// from resolving Quick Access, cloud folders, or the search index, which can
+/// block the picker on Windows.
+#[tauri::command]
+pub fn import_default_dir(app: tauri::AppHandle) -> Option<String> {
+    use tauri::Manager;
+
+    if let Ok(resources) = app.path().resource_dir() {
+        let examples = resources.join("examples");
+        if examples.is_dir() {
+            return Some(examples.to_string_lossy().into_owned());
+        }
+    }
+
+    app.path()
+        .document_dir()
+        .or_else(|_| app.path().home_dir())
+        .ok()
+        .map(|dir| dir.to_string_lossy().into_owned())
+}
+
 /// Imports an Obsidian-style Markdown document into the given panel.
 #[tauri::command]
 pub async fn import_markdown(
@@ -1234,6 +1395,24 @@ pub async fn hashtags_from(content: String) -> CmdResult<Vec<String>> {
 mod tests {
     use super::*;
     use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+
+    #[tokio::test]
+    async fn read_text_file_reads_and_reports_missing_paths() {
+        let dir = std::env::temp_dir().join(format!("meyaj-read-{}", Uuid::new_v4()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let file = dir.join("nota.md");
+        std::fs::write(&file, "- [ ] tarea").unwrap();
+
+        let content = read_text_file(file.to_string_lossy().into_owned())
+            .await
+            .unwrap();
+        assert_eq!(content, "- [ ] tarea");
+
+        let missing = read_text_file(dir.join("falta.md").to_string_lossy().into_owned()).await;
+        assert!(missing.is_err());
+
+        std::fs::remove_dir_all(&dir).ok();
+    }
 
     async fn setup() -> SqlitePool {
         let pool = SqlitePoolOptions::new()

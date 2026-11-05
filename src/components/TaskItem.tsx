@@ -47,6 +47,8 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
   const completeTask = useAppStore((s) => s.completeTask);
   const deleteTask = useAppStore((s) => s.deleteTask);
   const updateTask = useAppStore((s) => s.updateTask);
+  const setTaskClassifier = useAppStore((s) => s.setTaskClassifier);
+  const classifiers = useAppStore((s) => s.classifiers);
   const createTask = useAppStore((s) => s.createTask);
   const setTaskParent = useAppStore((s) => s.setTaskParent);
   const moveTask = useAppStore((s) => s.moveTask);
@@ -70,6 +72,18 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
 
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(task.content);
+  const [classifierOpen, setClassifierOpen] = useState(false);
+  const [classifierDraft, setClassifierDraft] = useState("");
+  const classifierRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!classifierOpen) return;
+    const onPointerDown = (event: MouseEvent) => {
+      if (!classifierRef.current?.contains(event.target as Node)) setClassifierOpen(false);
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, [classifierOpen]);
   const [addingChild, setAddingChild] = useState(false);
   const [childDraft, setChildDraft] = useState("");
   const [completing, setCompleting] = useState(false);
@@ -101,6 +115,14 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
     setDeleting(false);
     if (deleted) setDeleteOpen(false);
     else setDeleteError(t("task.deleteError"));
+  };
+
+  const applyClassifier = async (value: string | null) => {
+    const applied = await setTaskClassifier(task.id, value);
+    if (applied) {
+      setClassifierOpen(false);
+      setClassifierDraft("");
+    }
   };
 
   const saveEdit = () => {
@@ -212,25 +234,80 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
               className="mono w-full bg-transparent text-[0.8125rem] text-[var(--text)] outline-none"
             />
           ) : (
-            <button
-              onClick={() => {
-                setDraft(task.content);
-                setEditing(true);
-              }}
-              className="mono w-full cursor-text text-left text-[0.8125rem] leading-[1.6] text-[var(--text)]"
-            >
-              <span className="inline-flex items-center gap-1 align-middle">
-                <span className="rounded bg-[var(--bg-active)] px-1.5 py-px text-[0.625rem] font-medium text-[var(--text-dim)]">
-                  {yyyymmdd(task.createdAt)}
-                </span>
-                <span className="rounded bg-[var(--accent-dim)] px-1.5 py-px text-[0.625rem] font-semibold text-[var(--accent)]">
-                  {task.classifier ?? ""}
-                </span>
+            <div className="flex min-w-0 items-start gap-1.5 text-[0.8125rem] leading-[1.6]">
+              <span className="mono mt-[3px] shrink-0 rounded bg-[var(--bg-active)] px-1.5 py-px text-[0.625rem] font-medium text-[var(--text-dim)]">
+                {yyyymmdd(task.createdAt)}
               </span>
-              <span className="ml-2">
+              <div ref={classifierRef} className="relative shrink-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setClassifierDraft("");
+                    setClassifierOpen((v) => !v);
+                  }}
+                  title={t("task.classifier")}
+                  aria-label={t("task.classifier")}
+                  aria-expanded={classifierOpen}
+                  className="mono mt-[3px] block rounded bg-[var(--accent-dim)] px-1.5 py-px text-[0.625rem] font-semibold text-[var(--accent)] transition hover:brightness-125"
+                >
+                  {task.classifier ?? "+"}
+                </button>
+                {classifierOpen && (
+                  <div className="absolute left-0 top-full z-20 mt-1 w-56 overflow-hidden rounded border border-[var(--border-strong)] bg-[var(--bg-elevated)] shadow-xl">
+                    <input
+                      autoFocus
+                      value={classifierDraft}
+                      onChange={(e) => setClassifierDraft(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          const value = classifierDraft.trim().toUpperCase();
+                          void applyClassifier(value || null);
+                        }
+                        if (e.key === "Escape") setClassifierOpen(false);
+                      }}
+                      placeholder={t("task.classifierPlaceholder")}
+                      aria-label={t("task.classifierPlaceholder")}
+                      spellCheck={false}
+                      className="w-full border-b border-[var(--border)] bg-[var(--bg)] px-2.5 py-1.5 font-mono text-[0.75rem] uppercase text-[var(--text)] outline-none placeholder:normal-case placeholder:text-[var(--text-faint)]"
+                    />
+                    <div className="max-h-48 overflow-y-auto">
+                      {classifiers
+                        .filter((c) => c.name.includes(classifierDraft.trim().toUpperCase()))
+                        .map((c) => (
+                          <button
+                            key={c.id}
+                            type="button"
+                            onClick={() => void applyClassifier(c.name)}
+                            className={`flex w-full items-center px-2.5 py-1.5 text-left text-[0.75rem] hover:bg-[var(--bg-hover)] ${
+                              c.name === task.classifier ? "text-[var(--accent)]" : "text-[var(--text)]"
+                            }`}
+                          >
+                            <span className="truncate">{c.name}</span>
+                          </button>
+                        ))}
+                      <button
+                        type="button"
+                        onClick={() => void applyClassifier(null)}
+                        className="flex w-full items-center px-2.5 py-1.5 text-left text-[0.75rem] text-[var(--text-faint)] hover:bg-[var(--bg-hover)]"
+                      >
+                        {t("task.classifierNone")}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setDraft(task.content);
+                  setEditing(true);
+                }}
+                className="mono min-w-0 flex-1 cursor-text text-left text-[var(--text)]"
+              >
                 <HighlightedContent text={task.content} />
-              </span>
-            </button>
+              </button>
+            </div>
           )}
         </div>
 

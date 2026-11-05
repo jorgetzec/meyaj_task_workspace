@@ -5,6 +5,7 @@ import { normalizeProjectLabel } from "../utils/projects";
 import type {
   Classifier,
   CreateTaskInput,
+  FilePickerRequest,
   HistoryEntry,
   Lang,
   Panel,
@@ -38,12 +39,14 @@ interface AppStore {
   settingsOpen: boolean;
   projectFormOpen: boolean;
   searchOpen: boolean;
+  filePicker: FilePickerRequest | null;
 
   init: () => Promise<void>;
   setError: (error: string | null) => void;
   setSettingsOpen: (open: boolean) => void;
   setProjectFormOpen: (open: boolean) => void;
   setSearchOpen: (open: boolean) => void;
+  setFilePicker: (request: FilePickerRequest | null) => void;
   setActivePanel: (panelId: string) => Promise<void>;
   setView: (view: ViewKind) => void;
   closeTab: (view: ViewKind) => void;
@@ -68,6 +71,7 @@ interface AppStore {
   createProject: (label: string, colorAccent?: string | null) => Promise<Project | null>;
   createTask: (input: Omit<CreateTaskInput, "panelId">) => Promise<boolean>;
   updateTask: (taskId: string, content: string) => Promise<void>;
+  setTaskClassifier: (taskId: string, classifier: string | null) => Promise<boolean>;
   deleteTask: (taskId: string) => Promise<boolean>;
   completeTask: (taskId: string) => Promise<boolean>;
   setTaskParent: (taskId: string, parentTaskId: string | null) => Promise<void>;
@@ -195,6 +199,7 @@ export const useAppStore = create<AppStore>((set, get) => {
     settingsOpen: false,
     projectFormOpen: false,
     searchOpen: false,
+    filePicker: null,
 
     init: async () => {
       set({ loading: true, error: null });
@@ -295,6 +300,7 @@ export const useAppStore = create<AppStore>((set, get) => {
     },
     setError: (error) => set({ error }),
     setSettingsOpen: (open) => set({ settingsOpen: open }),
+    setFilePicker: (request) => set({ filePicker: request }),
     setProjectFormOpen: (open) => set({ projectFormOpen: open }),
     setSearchOpen: (open) => set({ searchOpen: open }),
     setTheme: (theme) => {
@@ -481,6 +487,17 @@ export const useAppStore = create<AppStore>((set, get) => {
         applyState(state);
       } catch (e) {
         set({ error: String(e) });
+      }
+    },
+
+    setTaskClassifier: async (taskId, classifier) => {
+      try {
+        const state = await api.setTaskClassifier(taskId, classifier);
+        applyState(state);
+        return true;
+      } catch (e) {
+        set({ error: String(e) });
+        return false;
       }
     },
 

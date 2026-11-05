@@ -21,6 +21,18 @@ export const api = {
   exportMarkdown: (panelId: string) =>
     invoke<string>("export_markdown", { panelId }),
 
+  readTextFile: (path: string) => invoke<string>("read_text_file", { path }),
+
+  writeTextFile: (path: string, contents: string) =>
+    invoke<void>("write_text_file", { path, contents }),
+
+  listDir: (path: string) =>
+    invoke<{ name: string; path: string; isDir: boolean }[]>("list_dir", { path }),
+
+  userPlaces: () => invoke<{ kind: string; path: string }[]>("user_places"),
+
+  importDefaultDir: () => invoke<string | null>("import_default_dir"),
+
   createPanel: (title: string) => invoke<PanelState>("create_panel", { title }),
 
     renamePanel: (panelId: string, title: string) =>
@@ -62,6 +74,9 @@ export const api = {
 
   updateTask: (taskId: string, content: string) =>
     invoke<PanelState>("update_task", { taskId, content }),
+
+  setTaskClassifier: (taskId: string, classifier: string | null) =>
+    invoke<PanelState>("set_task_classifier", { taskId, classifier }),
 
   deleteTask: (taskId: string) =>
     invoke<PanelState>("delete_task", { taskId }),

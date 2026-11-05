@@ -1,6 +1,6 @@
 [package]
 name = "meyaj"
-version = "0.1.0"
+version = "0.1.1"
 description = "Meyaj — A local-first desktop task workspace"
 authors = ["Jorge A. Tzec-Interián"]
 license = "PolyForm-Noncommercial-1.0.0"

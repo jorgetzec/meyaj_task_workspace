@@ -11,14 +11,28 @@ import {
   Copy,
   X,
 } from "lucide-react";
-import { open, save } from "@tauri-apps/plugin-dialog";
-import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { useAppStore } from "../stores/useAppStore";
 import { useT } from "../i18n";
 import { api } from "../api";
 
 const appWindow = getCurrentWindow();
+
+function parentDir(path: string): string | null {
+  const cut = Math.max(path.lastIndexOf("\\"), path.lastIndexOf("/"));
+  return cut > 2 ? path.slice(0, cut) : null;
+}
+
+function rememberDir(path: string) {
+  const dir = parentDir(path);
+  if (!dir) return;
+  try {
+    localStorage.setItem("meyaj-last-dir", dir);
+  } catch {
+    // Storage disabled: the picker simply opens at its default folder.
+  }
+}
 
 export default function TitleBar() {
   const t = useT();
@@ -28,6 +42,7 @@ export default function TitleBar() {
   const setError = useAppStore((s) => s.setError);
   const setSettingsOpen = useAppStore((s) => s.setSettingsOpen);
   const setSearchOpen = useAppStore((s) => s.setSearchOpen);
+  const setFilePicker = useAppStore((s) => s.setFilePicker);
   const activePanelId = useAppStore((s) => s.activePanelId);
 
   const [maximized, setMaximized] = useState(false);
@@ -36,34 +51,55 @@ export default function TitleBar() {
     appWindow.isMaximized().then(setMaximized).catch(() => {});
   }, []);
 
-  const handleImport = async () => {
-    try {
-      const selected = await open({
-        multiple: false,
-        directory: false,
-        filters: [{ name: "Markdown", extensions: ["md", "markdown", "txt"] }],
-      });
-      if (!selected || Array.isArray(selected)) return;
-      const content = await readTextFile(selected);
-      await importMarkdown(content);
-    } catch (e) {
-      setError(String(e));
+  const importFromPath = async (path: string) => {
+    if (!useAppStore.getState().activePanelId) {
+      setError(t("title.importNoPanel"));
+      return;
     }
+    const content = await api.readTextFile(path);
+    await importMarkdown(content);
+    rememberDir(path);
   };
 
-  const handleExport = async () => {
-    try {
-      if (!activePanelId) return;
-      const markdown = await api.exportMarkdown(activePanelId);
-      const path = await save({
-        filters: [{ name: "Markdown", extensions: ["md"] }],
-        defaultPath: "meyaj.md",
-      });
-      if (!path) return;
-      await writeTextFile(path, markdown);
-    } catch (e) {
-      setError(String(e));
+  // Dropping a file bypasses the native picker, which is the reliable path when
+  // the Windows file dialog is slow on a machine with a busy search index.
+  useEffect(() => {
+    let disposed = false;
+    let unlisten: (() => void) | undefined;
+
+    getCurrentWebview()
+      .onDragDropEvent((event) => {
+        if (event.payload.type !== "drop") return;
+        const [path] = event.payload.paths;
+        if (!path) return;
+        importFromPath(path).catch((e) => setError(String(e)));
+      })
+      .then((fn) => {
+        if (disposed) fn();
+        else unlisten = fn;
+      })
+      .catch(() => {});
+
+    return () => {
+      disposed = true;
+      unlisten?.();
+    };
+  }, []);
+
+  const handleImport = () => {
+    if (!activePanelId) {
+      setError(t("title.importNoPanel"));
+      return;
     }
+    setFilePicker({ mode: "open", extensions: ["md", "markdown", "txt"] });
+  };
+
+  const handleExport = () => {
+    if (!activePanelId) {
+      setError(t("export.noPanel"));
+      return;
+    }
+    setFilePicker({ mode: "save", extensions: ["md"], defaultName: "meyaj.md" });
   };
 
   const toggleMaximize = async () => {
