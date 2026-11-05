@@ -216,7 +216,7 @@ export default function Sidebar() {
       <div
         key={p.id}
         draggable={false}
-        className={`group flex items-center gap-1 rounded transition ${
+        className={`group relative flex items-center gap-1 rounded transition ${
           active ? "bg-[var(--bg-active)]" : "hover:bg-[var(--bg-hover)]"
         }`}
       >
@@ -247,40 +247,55 @@ export default function Sidebar() {
                 {p.title}
               </span>
             </button>
-            <button
-              type="button"
-              draggable={false}
-              onDragStart={(e) => e.preventDefault()}
-              onClick={() => beginEditing("rename", p.id, p.title)}
-              title={t("sidebar.rename")}
-              aria-label={`${t("sidebar.rename")}: ${p.title}`}
-              className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-[var(--text-faint)] opacity-0 transition hover:bg-[var(--bg-active)] hover:text-[var(--text)] focus:opacity-100 group-hover:opacity-100 group-focus-within:opacity-100"
+            <div
+              className={`pointer-events-none absolute inset-y-0 right-0 flex items-center gap-0.5 rounded-r pr-1.5 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100 ${
+                active ? "bg-[var(--bg-active)]" : "bg-[var(--bg-hover)]"
+              }`}
             >
-              <Pencil size={13} aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              draggable={false}
-              onDragStart={(e) => e.preventDefault()}
-              onClick={() => { void archivePanel(p.id, !p.archived); }}
-              title={archiveLabel}
-              aria-label={`${archiveLabel}: ${p.title}`}
-              className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-[var(--text-faint)] opacity-0 transition hover:bg-[var(--bg-active)] hover:text-[var(--text)] focus:opacity-100 group-hover:opacity-100 group-focus-within:opacity-100"
-            >
-              {p.archived ? <ArchiveRestore size={13} aria-hidden="true" /> : <Archive size={13} aria-hidden="true" />}
-            </button>
-            <button
-              type="button"
-              draggable={false}
-              onDragStart={(e) => e.preventDefault()}
-              disabled={panels.length <= 1}
-              onClick={() => askToDelete(p)}
-              title={panels.length <= 1 ? t("sidebar.deleteLast") : t("sidebar.delete")}
-              aria-label={`${t("sidebar.delete")}: ${p.title}`}
-              className="mr-1 flex h-6 w-6 shrink-0 items-center justify-center rounded text-[var(--text-faint)] opacity-0 transition hover:bg-[var(--bg-active)] hover:text-[var(--danger)] focus:opacity-100 group-hover:opacity-100 group-focus-within:opacity-100 disabled:cursor-not-allowed disabled:opacity-0"
-            >
-              <Trash2 size={13} aria-hidden="true" />
-            </button>
+              <span
+                aria-hidden="true"
+                className="absolute inset-y-0 -left-6 w-6"
+                style={{
+                  backgroundImage: `linear-gradient(to right, transparent, var(${
+                    active ? "--bg-active" : "--bg-hover"
+                  }))`,
+                }}
+              />
+              <button
+                type="button"
+                draggable={false}
+                onDragStart={(e) => e.preventDefault()}
+                onClick={() => beginEditing("rename", p.id, p.title)}
+                title={t("sidebar.rename")}
+                aria-label={`${t("sidebar.rename")}: ${p.title}`}
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-[var(--text-faint)] transition hover:bg-[var(--bg-active)] hover:text-[var(--text)]"
+              >
+                <Pencil size={13} aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                draggable={false}
+                onDragStart={(e) => e.preventDefault()}
+                onClick={() => { void archivePanel(p.id, !p.archived); }}
+                title={archiveLabel}
+                aria-label={`${archiveLabel}: ${p.title}`}
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-[var(--text-faint)] transition hover:bg-[var(--bg-active)] hover:text-[var(--text)]"
+              >
+                {p.archived ? <ArchiveRestore size={13} aria-hidden="true" /> : <Archive size={13} aria-hidden="true" />}
+              </button>
+              <button
+                type="button"
+                draggable={false}
+                onDragStart={(e) => e.preventDefault()}
+                disabled={panels.length <= 1}
+                onClick={() => askToDelete(p)}
+                title={panels.length <= 1 ? t("sidebar.deleteLast") : t("sidebar.delete")}
+                aria-label={`${t("sidebar.delete")}: ${p.title}`}
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-[var(--text-faint)] transition hover:bg-[var(--bg-active)] hover:text-[var(--danger)] disabled:hidden"
+              >
+                <Trash2 size={13} aria-hidden="true" />
+              </button>
+            </div>
           </>
         )}
       </div>

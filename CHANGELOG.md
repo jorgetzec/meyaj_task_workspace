@@ -24,6 +24,8 @@ Maintenance release focused on reliability and consistency.
   examples, plus the last folder used is remembered.
 - Resizable sidebar: drag the divider on its right edge or use the arrow keys, with the
   width remembered between sessions and a double click to restore the default.
+- Panel actions (rename, archive, delete) float over the row only while it is hovered or
+  focused, so long panel names no longer lose half their width to reserved space.
 
 ### Fixed
 
