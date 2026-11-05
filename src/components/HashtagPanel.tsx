@@ -83,15 +83,22 @@ export default function HashtagPanel() {
         className="absolute -left-1 top-0 z-10 h-full w-2 cursor-col-resize rounded hover:bg-[var(--accent)]"
       />
 
-      <div className="border-b border-[var(--border)] px-3 py-2">
-        <span className="text-[0.625rem] font-semibold uppercase tracking-[0.14em] text-[var(--text-faint)]">
-          {t("hashtag.title")}
-        </span>
+      <div className="border-b border-[var(--border)] px-3 py-2.5">
+        <div className="flex items-baseline justify-between gap-2">
+          <span className="text-[0.625rem] font-semibold uppercase tracking-[0.14em] text-[var(--text-faint)]">
+            {t("hashtag.title")}
+          </span>
+          {counts.length > 0 && (
+            <span className="tabular-nums text-[0.625rem] text-[var(--text-faint)]">
+              {counts.length} · {counts.reduce((total, [, count]) => total + count, 0)}
+            </span>
+          )}
+        </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-2 py-2">
+      <div className="flex-1 overflow-y-auto px-2.5 py-3">
         {counts.length === 0 && (
-          <p className="px-2 py-4 text-xs text-[var(--text-faint)]">
+          <p className="px-1 py-6 text-[0.6875rem] leading-relaxed text-[var(--text-faint)]">
             {t("hashtag.hint")}
           </p>
         )}
@@ -100,36 +107,52 @@ export default function HashtagPanel() {
           const items = tasks.filter((t) => t.hashtags.includes(tag));
           const isCollapsed = collapsed.has(tag);
           return (
-            <div key={tag} className="mb-0.5">
+            <section
+              key={tag}
+              className="mb-2 overflow-hidden rounded-md border border-[var(--border)] bg-[var(--bg)] transition hover:border-[var(--border-strong)]"
+            >
               <button
                 onClick={() => toggle(tag)}
-                className="flex w-full items-center gap-1.5 rounded px-2 py-1.5 text-left hover:bg-[var(--bg-hover)]"
+                aria-expanded={!isCollapsed}
+                className="flex w-full items-center gap-2 px-2.5 py-2 text-left hover:bg-[var(--bg-hover)]"
               >
                 <ChevronRight
-                  size={13}
+                  size={12}
                   className={`shrink-0 text-[var(--text-faint)] transition-transform ${
                     isCollapsed ? "" : "rotate-90"
                   }`}
                 />
-                <span className="mono text-[0.75rem] font-semibold text-[var(--accent)]">
+                <span className="mono truncate text-[0.75rem] font-semibold text-[var(--accent)]">
                   #{tag}
                 </span>
-                <span className="ml-auto text-[0.6875rem] text-[var(--text-faint)]">{count}</span>
+                <span className="ml-auto shrink-0 rounded-full bg-[var(--bg-active)] px-1.5 py-px tabular-nums text-[0.625rem] text-[var(--text-dim)]">
+                  {count}
+                </span>
               </button>
 
               {!isCollapsed && (
-                <ul className="ml-5 border-l border-[var(--border)] pl-2">
+                <ul className="border-t border-[var(--border)] px-2.5 py-1.5">
                   {items.map((t) => (
-                    <li key={t.id} className="py-1 text-[0.75rem] leading-snug text-[var(--text-dim)]">
-                      <span className="mono text-[0.625rem] text-[var(--text-faint)]">
-                        {t.classifier ? `${t.classifier} | ` : ""}
+                    <li
+                      key={t.id}
+                      className="flex items-start gap-1.5 py-1 text-[0.75rem] leading-snug text-[var(--text-dim)]"
+                    >
+                      <span aria-hidden="true" className="mt-[0.45rem] h-1 w-1 shrink-0 rounded-full bg-[var(--text-faint)]" />
+                      <span className="min-w-0">
+                        {t.classifier && (
+                          <span className="mono mr-1 text-[0.625rem] uppercase tracking-wide text-[var(--text-faint)]">
+                            {t.classifier}
+                          </span>
+                        )}
+                        <span className="line-clamp-2">
+                          {t.content.replace(/#[\p{L}\p{N}_/-]+/gu, "").trim()}
+                        </span>
                       </span>
-                      {t.content.replace(/#[\p{L}\p{N}_/-]+/gu, "").trim()}
                     </li>
                   ))}
                 </ul>
               )}
-            </div>
+            </section>
           );
         })}
       </div>

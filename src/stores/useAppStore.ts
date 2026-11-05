@@ -67,6 +67,9 @@ interface AppStore {
   renamePanel: (panelId: string, title: string) => Promise<boolean>;
   deletePanel: (panelId: string) => Promise<boolean>;
     moveProject: (projectId: string, targetPanelId: string) => Promise<boolean>;
+    renameProject: (projectId: string, label: string) => Promise<boolean>;
+    setProjectColor: (projectId: string, colorAccent: string | null) => Promise<boolean>;
+    deleteProject: (projectId: string) => Promise<boolean>;
     setProjectIcon: (projectId: string, icon: string | null) => Promise<boolean>;
   createProject: (label: string, colorAccent?: string | null) => Promise<Project | null>;
   createTask: (input: Omit<CreateTaskInput, "panelId">) => Promise<boolean>;
@@ -407,6 +410,39 @@ export const useAppStore = create<AppStore>((set, get) => {
         if (requestedPanelId === targetPanelId || (!requestedPanelId && get().activePanelId === targetPanelId)) {
           await get().setActivePanel(targetPanelId);
         }
+        return true;
+      } catch (e) {
+        set({ error: String(e) });
+        return false;
+      }
+    },
+
+    renameProject: async (projectId, label) => {
+      try {
+        const state = await api.renameProject(projectId, label);
+        applyState(state);
+        return true;
+      } catch (e) {
+        set({ error: String(e) });
+        return false;
+      }
+    },
+
+    setProjectColor: async (projectId, colorAccent) => {
+      try {
+        const state = await api.setProjectColor(projectId, colorAccent);
+        applyState(state);
+        return true;
+      } catch (e) {
+        set({ error: String(e) });
+        return false;
+      }
+    },
+
+    deleteProject: async (projectId) => {
+      try {
+        const state = await api.deleteProject(projectId);
+        applyState(state);
         return true;
       } catch (e) {
         set({ error: String(e) });

@@ -1,11 +1,17 @@
 import {
-  Folder, Code, FlaskConical, Book, Briefcase, Leaf, Star, Target, Rocket, Heart,
+  Folder, Code, Terminal, Laptop, Database, Bug, FlaskConical, Book, Briefcase, Leaf,
+  Star, Target, Rocket, Heart, Palette, Camera, Music, Globe, Calendar, Wallet, Home,
+  Coffee, GraduationCap, Lightbulb, Wrench, PenTool,
   type LucideProps,
 } from "lucide-react";
 
 export const PROJECT_ICONS = {
   folder: Folder,
   code: Code,
+  terminal: Terminal,
+  laptop: Laptop,
+  database: Database,
+  bug: Bug,
   flask: FlaskConical,
   book: Book,
   briefcase: Briefcase,
@@ -14,6 +20,18 @@ export const PROJECT_ICONS = {
   target: Target,
   rocket: Rocket,
   heart: Heart,
+  palette: Palette,
+  camera: Camera,
+  music: Music,
+  globe: Globe,
+  calendar: Calendar,
+  wallet: Wallet,
+  home: Home,
+  coffee: Coffee,
+  graduation: GraduationCap,
+  lightbulb: Lightbulb,
+  wrench: Wrench,
+  pen: PenTool,
 } as const;
 
 export type ProjectIconId = keyof typeof PROJECT_ICONS;

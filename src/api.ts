@@ -44,6 +44,15 @@ export const api = {
     moveProject: (projectId: string, targetPanelId: string) =>
       invoke<PanelState>("move_project", { projectId, targetPanelId }),
 
+    renameProject: (projectId: string, label: string) =>
+      invoke<PanelState>("rename_project", { projectId, label }),
+
+    setProjectColor: (projectId: string, colorAccent: string | null) =>
+      invoke<PanelState>("set_project_color", { projectId, colorAccent }),
+
+    deleteProject: (projectId: string) =>
+      invoke<PanelState>("delete_project", { projectId }),
+
     setProjectIcon: (projectId: string, icon: string | null) =>
       invoke<PanelState>("set_project_icon", { projectId, icon }),
 

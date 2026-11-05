@@ -26,6 +26,11 @@ Maintenance release focused on reliability and consistency.
   width remembered between sessions and a double click to restore the default.
 - Panel actions (rename, archive, delete) float over the row only while it is hovered or
   focused, so long panel names no longer lose half their width to reserved space.
+- Project editing after creation: rename, eight accent colors, 26 icons in a scrollable
+  grid, and project deletion with confirmation (removes its tasks).
+- Restyled key-tasks panel: each hashtag is a card with a count pill and its own list.
+- The classifier badge stays neutral until a classifier is set.
+- The About section renders the license and notice without raw Markdown markers.
 
 ### Fixed
 

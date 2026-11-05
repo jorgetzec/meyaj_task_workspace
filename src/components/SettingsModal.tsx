@@ -42,8 +42,46 @@ const SANS_FONTS: { value: string; label: string }[] = [
   { value: '"Inter", system-ui, sans-serif', label: "Inter" },
   { value: '"Segoe UI", system-ui, sans-serif', label: "Segoe UI" },
   { value: '"Roboto", system-ui, sans-serif', label: "Roboto" },
-  { value: "system-ui, sans-serif", label: "System" },
+  { value: 'system-ui, sans-serif', label: "System" },
 ];
+
+function inlineText(line: string): string {
+  return line
+    .replace(/\*\*\*(.+?)\*\*\*/g, "$1")
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/^<(.+)>$/, "$1");
+}
+
+/** Renders the shipped LICENSE and NOTICE without their Markdown markers. */
+function LegalText({ text }: { text: string }) {
+  return (
+    <div className="mt-2 max-h-64 space-y-1.5 overflow-y-auto rounded border border-[var(--border)] bg-[var(--bg)] p-3 text-[0.6875rem] leading-relaxed text-[var(--text-dim)]">
+      {text.split(/\r?\n/).map((raw, index) => {
+        const line = inlineText(raw).trim();
+        if (!line) return null;
+        if (/^#{1,6}\s/.test(line)) {
+          return (
+            <p key={index} className="pt-1 text-[0.75rem] font-semibold text-[var(--text)]">
+              {line.replace(/^#{1,6}\s*/, "")}
+            </p>
+          );
+        }
+        if (/^-{3,}$/.test(line)) {
+          return <hr key={index} className="border-[var(--border)]" />;
+        }
+        if (line.startsWith(">")) {
+          return (
+            <p key={index} className="border-l-2 border-[var(--border-strong)] pl-2 italic">
+              {line.replace(/^>\s?/, "")}
+            </p>
+          );
+        }
+        return <p key={index}>{line}</p>;
+      })}
+    </div>
+  );
+}
 
 export default function SettingsModal() {
   const t = useT();
@@ -290,10 +328,11 @@ export default function SettingsModal() {
           <section aria-label={t("settings.about")} className="space-y-2 border-t border-[var(--border)] pt-4 text-xs text-[var(--text-dim)]">
             <h2 className="font-semibold text-[var(--text)]">Meyaj {version}</h2>
             <p>{t("settings.createdBy")} {author} · © 2026</p>
+            <p className="font-medium text-[var(--text)]">PolyForm Noncommercial 1.0.0</p>
             <p>{t("settings.licenseSummary")}</p>
             <details>
-              <summary className="cursor-pointer text-[var(--accent)]">PolyForm Noncommercial 1.0.0 · {t("settings.licenseTerms")}</summary>
-              <pre className="mt-2 whitespace-pre-wrap break-words text-[0.6875rem] leading-relaxed">{noticeText + "\n" + licenseText}</pre>
+              <summary className="cursor-pointer text-[var(--accent)]">{t("settings.licenseTerms")}</summary>
+              <LegalText text={noticeText + "\n" + licenseText} />
             </details>
           </section>
         </div>

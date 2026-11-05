@@ -248,7 +248,11 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
                   title={t("task.classifier")}
                   aria-label={t("task.classifier")}
                   aria-expanded={classifierOpen}
-                  className="mono mt-[3px] block rounded bg-[var(--accent-dim)] px-1.5 py-px text-[0.625rem] font-semibold text-[var(--accent)] transition hover:brightness-125"
+                  className={`mono mt-[3px] block rounded px-1.5 py-px text-[0.625rem] font-semibold transition ${
+                    task.classifier
+                      ? "bg-[var(--accent-dim)] text-[var(--accent)] hover:brightness-125"
+                      : "bg-[var(--bg-active)] text-[var(--text-faint)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-dim)]"
+                  }`}
                 >
                   {task.classifier ?? "+"}
                 </button>

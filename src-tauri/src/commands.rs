@@ -11,6 +11,40 @@ use crate::util::{now_local_iso, parse_hashtags};
 
 type CmdResult<T> = Result<T, String>;
 
+const PROJECT_ICON_IDS: &[&str] = &[
+    "folder",
+    "code",
+    "terminal",
+    "laptop",
+    "database",
+    "bug",
+    "flask",
+    "book",
+    "briefcase",
+    "leaf",
+    "star",
+    "target",
+    "rocket",
+    "heart",
+    "palette",
+    "camera",
+    "music",
+    "globe",
+    "calendar",
+    "wallet",
+    "home",
+    "coffee",
+    "graduation",
+    "lightbulb",
+    "wrench",
+    "pen",
+];
+
+fn is_hex_color(value: &str) -> bool {
+    let hex = value.strip_prefix('#').unwrap_or(value);
+    (hex.len() == 3 || hex.len() == 6) && hex.chars().all(|c| c.is_ascii_hexdigit())
+}
+
 fn err<E: std::fmt::Display>(e: E) -> String {
     e.to_string()
 }
@@ -382,19 +416,7 @@ async fn set_project_icon_inner(
     project_id: &str,
     icon: Option<&str>,
 ) -> CmdResult<PanelState> {
-    const ICONS: &[&str] = &[
-        "folder",
-        "code",
-        "flask",
-        "book",
-        "briefcase",
-        "leaf",
-        "star",
-        "target",
-        "rocket",
-        "heart",
-    ];
-    if icon.is_some_and(|value| !ICONS.contains(&value)) {
+    if icon.is_some_and(|value| !PROJECT_ICON_IDS.contains(&value)) {
         return Err("Invalid project icon".into());
     }
     let mut tx = pool.begin().await.map_err(err)?;
@@ -411,6 +433,87 @@ async fn set_project_icon_inner(
         .await
         .map_err(err)?;
     tx.commit().await.map_err(err)?;
+    build_panel_state(pool, &panel).await.map_err(err)
+}
+
+#[tauri::command]
+pub async fn rename_project(
+    project_id: String,
+    label: String,
+    state: State<'_, AppState>,
+) -> CmdResult<PanelState> {
+    let pool = &state.pool;
+    let label = label.trim();
+    if label.is_empty() {
+        return Err("Project name cannot be empty".into());
+    }
+
+    let panel = panel_id_for_project(pool, &project_id).await.map_err(err)?;
+    sqlx::query("UPDATE project SET label = ? WHERE id = ?")
+        .bind(label)
+        .bind(&project_id)
+        .execute(pool)
+        .await
+        .map_err(err)?;
+    build_panel_state(pool, &panel).await.map_err(err)
+}
+
+#[tauri::command]
+pub async fn set_project_color(
+    project_id: String,
+    color_accent: Option<String>,
+    state: State<'_, AppState>,
+) -> CmdResult<PanelState> {
+    let pool = &state.pool;
+    let color = color_accent
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty());
+
+    if let Some(value) = color.as_deref() {
+        if !is_hex_color(value) {
+            return Err("Invalid project color".into());
+        }
+    }
+
+    let panel = panel_id_for_project(pool, &project_id).await.map_err(err)?;
+    sqlx::query("UPDATE project SET color_accent = ? WHERE id = ?")
+        .bind(color.as_deref())
+        .bind(&project_id)
+        .execute(pool)
+        .await
+        .map_err(err)?;
+    build_panel_state(pool, &panel).await.map_err(err)
+}
+
+/// Removes a project together with its tasks.
+///
+/// The schema declares `task.project_id` as `ON DELETE SET NULL`, so deleting
+/// only the project row would leave tasks that no view can reach. The tasks are
+/// removed first, and their subtasks follow through the parent cascade.
+#[tauri::command]
+pub async fn delete_project(
+    project_id: String,
+    state: State<'_, AppState>,
+) -> CmdResult<PanelState> {
+    delete_project_inner(&state.pool, &project_id).await
+}
+
+async fn delete_project_inner(pool: &SqlitePool, project_id: &str) -> CmdResult<PanelState> {
+    let panel = panel_id_for_project(pool, project_id).await.map_err(err)?;
+
+    let mut tx = pool.begin().await.map_err(err)?;
+    sqlx::query("DELETE FROM task WHERE project_id = ?")
+        .bind(project_id)
+        .execute(&mut *tx)
+        .await
+        .map_err(err)?;
+    sqlx::query("DELETE FROM project WHERE id = ?")
+        .bind(project_id)
+        .execute(&mut *tx)
+        .await
+        .map_err(err)?;
+    tx.commit().await.map_err(err)?;
+
     build_panel_state(pool, &panel).await.map_err(err)
 }
 
@@ -1395,6 +1498,34 @@ pub async fn hashtags_from(content: String) -> CmdResult<Vec<String>> {
 mod tests {
     use super::*;
     use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+
+    #[tokio::test]
+    async fn delete_project_removes_its_tasks_and_keeps_others() {
+        let pool = setup().await;
+        task(&pool, "t1", "p", None).await;
+        task(&pool, "t2", "p", Some("t1")).await;
+        task(&pool, "keep", "q", None).await;
+
+        delete_project_inner(&pool, "p").await.unwrap();
+
+        let removed: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM task WHERE id IN ('t1', 't2')")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+        assert_eq!(removed, 0, "tasks of the deleted project must be gone");
+
+        let kept: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM task WHERE id = 'keep'")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+        assert_eq!(kept, 1, "tasks of other projects must survive");
+
+        let projects: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM project WHERE id = 'p'")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+        assert_eq!(projects, 0);
+    }
 
     #[tokio::test]
     async fn read_text_file_reads_and_reports_missing_paths() {
