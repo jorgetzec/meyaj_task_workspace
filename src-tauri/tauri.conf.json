@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Meyaj",
+  "version": "0.1.0",
+  "identifier": "com.meyaj.app",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Meyaj",
+        "width": 1280,
+        "height": 820,
+        "minWidth": 940,
+        "minHeight": 600,
+        "decorations": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "publisher": "Jorge A. Tzec-Interián",
+    "license": "PolyForm-Noncommercial-1.0.0",
+    "licenseFile": "../LICENSE",
+    "copyright": "Copyright (c) 2026 Jorge A. Tzec-Interián",
+    "category": "Productivity",
+    "shortDescription": "A local-first desktop task workspace",
+    "resources": {
+      "../LICENSE": "LICENSE",
+      "../NOTICE": "NOTICE",
+      "../THIRD_PARTY_NOTICES.txt": "THIRD_PARTY_NOTICES.txt",
+      "../examples/structured-workspace.md": "examples/structured-workspace.md",
+      "../examples/markdown-checklist.md": "examples/markdown-checklist.md",
+      "../public/meyaj-theme-example.json": "examples/meyaj-theme-example.json"
+    },
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}

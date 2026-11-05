@@ -1,0 +1,19 @@
+{
+  "name": "Bosque nocturno",
+  "colors": {
+    "bg": "#121a17",
+    "bgElevated": "#19251f",
+    "bgHover": "#22332a",
+    "bgActive": "#2d4436",
+    "border": "#2a3c30",
+    "borderStrong": "#405b49",
+    "text": "#e3eee6",
+    "textDim": "#a1b9a8",
+    "textFaint": "#769680",
+    "accent": "#93d6a5",
+    "accentDim": "#345940",
+    "danger": "#ef9292",
+    "success": "#93d6a5",
+    "selection": "#345940"
+  }
+}

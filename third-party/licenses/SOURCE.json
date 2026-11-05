@@ -1,0 +1,318 @@
+{
+  "schemaVersion": 1,
+  "description": "Version-scoped supplements copied from official upstream sources. License texts and attribution are not rewritten. SHA-256 values describe the saved bytes; generation validates these files offline.",
+  "packages": [
+    {
+      "ecosystem": "cargo",
+      "name": "alloc-stdlib",
+      "version": "0.3.0",
+      "declaredLicense": "BSD-3-Clause",
+      "repository": "https://github.com/dropbox/rust-alloc-no-stdlib",
+      "cachedRevision": "0a81fd6928ea3b33c8cd484aa4575d50ffb98012",
+      "evidenceUrls": [
+        "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/0a81fd6928ea3b33c8cd484aa4575d50ffb98012/alloc-stdlib/Cargo.toml"
+      ],
+      "notes": "The published cached README and Rust sources contain no inline license grant. The repository root LICENSE at the published crate's exact VCS revision supplies the BSD-3-Clause text. The cached README Contributors section is retained separately; no copyright holder is inferred from contributor names.",
+      "files": [
+        {
+          "file": "cargo-alloc-stdlib-0.3.0.LICENSE.txt",
+          "kind": "license",
+          "url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/0a81fd6928ea3b33c8cd484aa4575d50ffb98012/LICENSE",
+          "sha256": "c0c56f26d9c051cac4d200c34c84e7ae9aaa853e01a982a1df08b09931e518ae",
+          "bytes": 1483
+        },
+        {
+          "file": "cargo-alloc-stdlib-0.3.0.CREDITS.txt",
+          "kind": "notice",
+          "url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/0a81fd6928ea3b33c8cd484aa4575d50ffb98012/alloc-stdlib/README.md",
+          "cachedFile": "README.md",
+          "fromMarker": "## Contributors",
+          "sha256": "56cd52f3d85b6116ca44ea6af926aef6cf4632ce452a9c75477ea276864a7c5b",
+          "bytes": 37
+        }
+      ]
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "selectors",
+      "version": "0.38.0",
+      "declaredLicense": "MPL-2.0",
+      "repository": "https://github.com/servo/stylo",
+      "cachedRevision": "572ecba2d1600e7c3d490586692a209faf703baa",
+      "evidenceUrls": [
+        "https://raw.githubusercontent.com/servo/stylo/572ecba2d1600e7c3d490586692a209faf703baa/selectors/Cargo.toml",
+        "https://mozilla.org/MPL/2.0/"
+      ],
+      "notes": "The license notice is extracted verbatim from the cached lib.rs header. The complete MPL-2.0 text comes from Mozilla, the license steward, at the URL referenced by that header. Upstream source is linked rather than bundled; corresponding modifications, if any, must also be made available under MPL-2.0.",
+      "sourceCodeUrls": [
+        "https://crates.io/crates/selectors/0.38.0",
+        "https://crates.io/api/v1/crates/selectors/0.38.0/download"
+      ],
+      "files": [
+        {
+          "file": "cargo-selectors-0.38.0.HEADER.txt",
+          "kind": "notice",
+          "url": "https://raw.githubusercontent.com/servo/stylo/572ecba2d1600e7c3d490586692a209faf703baa/selectors/lib.rs",
+          "cachedFile": "lib.rs",
+          "lineStart": 1,
+          "lineEnd": 3,
+          "sha256": "766674381e88a468d55e07de3596987391cf0e8beebe51baf4fddf11078785b3",
+          "bytes": 206
+        },
+        {
+          "file": "cargo-selectors-0.38.0.LICENSE-MPL-2.0.txt",
+          "kind": "license",
+          "url": "https://www.mozilla.org/media/MPL/2.0/index.txt",
+          "sha256": "3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04",
+          "bytes": 16726
+        }
+      ]
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "tauri-plugin",
+      "version": "2.7.2",
+      "declaredLicense": "Apache-2.0 OR MIT",
+      "repository": "https://github.com/tauri-apps/tauri",
+      "cachedRevision": "59b63ab500da9859f12d8888c3298bc29bba0b92",
+      "evidenceUrls": [
+        "https://raw.githubusercontent.com/tauri-apps/tauri/59b63ab500da9859f12d8888c3298bc29bba0b92/crates/tauri-plugin/Cargo.toml"
+      ],
+      "notes": "The package inherits its workspace license. Both repository root license texts at the crate's published VCS revision are retained, without selecting or rewriting the declared alternatives.",
+      "files": [
+        {
+          "file": "cargo-tauri-plugin-2.7.2.LICENSE-APACHE-2.0.txt",
+          "kind": "license",
+          "url": "https://raw.githubusercontent.com/tauri-apps/tauri/59b63ab500da9859f12d8888c3298bc29bba0b92/LICENSE-APACHE-2.0",
+          "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+          "bytes": 10174
+        },
+        {
+          "file": "cargo-tauri-plugin-2.7.2.LICENSE-MIT.txt",
+          "kind": "license",
+          "url": "https://raw.githubusercontent.com/tauri-apps/tauri/59b63ab500da9859f12d8888c3298bc29bba0b92/LICENSE-MIT",
+          "sha256": "9dd42ea92cff2ede5cd477cbfcce051b2d0115c0ac7f368ee88cb545055dff1d",
+          "bytes": 1090
+        }
+      ]
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "webview2-com",
+      "version": "0.39.1",
+      "declaredLicense": "MIT",
+      "repository": "https://github.com/wravery/webview2-rs",
+      "cachedRevision": "edc2caf886175ccaebe86078c9cfe1ae2a187328",
+      "evidenceUrls": [
+        "https://raw.githubusercontent.com/wravery/webview2-rs/edc2caf886175ccaebe86078c9cfe1ae2a187328/crates/webview2-com/Cargo.toml"
+      ],
+      "notes": "Repository root license at the published crate's exact VCS revision.",
+      "files": [
+        {
+          "file": "cargo-webview2-com-0.39.1.LICENSE.txt",
+          "kind": "license",
+          "url": "https://raw.githubusercontent.com/wravery/webview2-rs/edc2caf886175ccaebe86078c9cfe1ae2a187328/LICENSE",
+          "sha256": "0dcf41516e608bbcb6cdc5229feb7b86fe4a643b85e7df251133c93408fdac73",
+          "bytes": 1067
+        }
+      ]
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "webview2-com-macros",
+      "version": "0.8.1",
+      "declaredLicense": "MIT",
+      "repository": "https://github.com/wravery/webview2-rs",
+      "cachedRevision": "dffa41a8a46d3f5565eefbff2de57d38d399f158",
+      "evidenceUrls": [
+        "https://raw.githubusercontent.com/wravery/webview2-rs/dffa41a8a46d3f5565eefbff2de57d38d399f158/crates/callback-macros/Cargo.toml"
+      ],
+      "notes": "Repository root license at the published crate's exact VCS revision.",
+      "files": [
+        {
+          "file": "cargo-webview2-com-macros-0.8.1.LICENSE.txt",
+          "kind": "license",
+          "url": "https://raw.githubusercontent.com/wravery/webview2-rs/dffa41a8a46d3f5565eefbff2de57d38d399f158/LICENSE",
+          "sha256": "0dcf41516e608bbcb6cdc5229feb7b86fe4a643b85e7df251133c93408fdac73",
+          "bytes": 1067
+        }
+      ]
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "webview2-com-sys",
+      "version": "0.39.1",
+      "declaredLicense": "MIT",
+      "repository": "https://github.com/wravery/webview2-rs",
+      "cachedRevision": "edc2caf886175ccaebe86078c9cfe1ae2a187328",
+      "evidenceUrls": [
+        "https://raw.githubusercontent.com/wravery/webview2-rs/edc2caf886175ccaebe86078c9cfe1ae2a187328/crates/bindings/Cargo.toml"
+      ],
+      "notes": "Repository root license at the published crate's exact VCS revision.",
+      "files": [
+        {
+          "file": "cargo-webview2-com-sys-0.39.1.LICENSE.txt",
+          "kind": "license",
+          "url": "https://raw.githubusercontent.com/wravery/webview2-rs/edc2caf886175ccaebe86078c9cfe1ae2a187328/LICENSE",
+          "sha256": "0dcf41516e608bbcb6cdc5229feb7b86fe4a643b85e7df251133c93408fdac73",
+          "bytes": 1067
+        }
+      ]
+    },
+    {
+      "ecosystem": "npm",
+      "name": "@napi-rs/wasm-runtime",
+      "version": "1.2.2",
+      "declaredLicense": "MIT",
+      "repository": "https://github.com/napi-rs/napi-rs",
+      "publishedRevision": "5b344c367eeed81d1917f7c4d8e65b1adc16de12",
+      "evidenceUrls": [
+        "https://registry.npmjs.org/%40napi-rs%2Fwasm-runtime/1.2.2",
+        "https://raw.githubusercontent.com/napi-rs/napi-rs/5b344c367eeed81d1917f7c4d8e65b1adc16de12/wasm-runtime/package.json"
+      ],
+      "notes": "Repository root license at the registry gitHead; upstream package manifest confirms version 1.2.2. Both MIT copyright blocks (LongYinan and GitHub) are preserved.",
+      "files": [
+        {
+          "file": "npm-napi-rs-wasm-runtime-1.2.2.LICENSE.txt",
+          "kind": "license",
+          "url": "https://raw.githubusercontent.com/napi-rs/napi-rs/5b344c367eeed81d1917f7c4d8e65b1adc16de12/LICENSE",
+          "sha256": "3f1ce66533302df3a32edbfdfc0b78f0dd34659e4c1f5817162e5ea3c2297215",
+          "bytes": 2138
+        }
+      ]
+    },
+    {
+      "ecosystem": "npm",
+      "name": "@rolldown/binding-win32-x64-msvc",
+      "version": "1.2.16",
+      "declaredLicense": "MIT",
+      "repository": "https://github.com/rolldown/rolldown",
+      "evidenceUrls": [
+        "https://registry.npmjs.org/%40rolldown%2Fbinding-win32-x64-msvc/1.2.16",
+        "https://api.github.com/repos/rolldown/rolldown/git/ref/tags/v1.2.16",
+        "https://raw.githubusercontent.com/rolldown/rolldown/de6facf2228279718e042b801dd6b60dd6503918/packages/rolldown/package.json"
+      ],
+      "notes": "The release tag v1.2.16 resolves to de6facf2228279718e042b801dd6b60dd6503918. The same-monorepo wrapper manifest confirms version 1.2.16 and MIT. Root license and upstream third-party notices are retained; the binding is an npm dev/build tool, not exempted from attribution here.",
+      "files": [
+        {
+          "file": "npm-rolldown-binding-win32-x64-msvc-1.2.16.LICENSE.txt",
+          "kind": "license",
+          "url": "https://raw.githubusercontent.com/rolldown/rolldown/de6facf2228279718e042b801dd6b60dd6503918/LICENSE",
+          "sha256": "23ecfff35a5a2e80d92142f75228912c3b1abc4b5a8337a821ff4397e2f9f734",
+          "bytes": 1302
+        },
+        {
+          "file": "npm-rolldown-binding-win32-x64-msvc-1.2.16.THIRD-PARTY.txt",
+          "kind": "notice",
+          "url": "https://raw.githubusercontent.com/rolldown/rolldown/de6facf2228279718e042b801dd6b60dd6503918/THIRD-PARTY-LICENSE",
+          "sha256": "a877291d800ed43692f3f9ae09d8e01cc6f7293ad39d43896059c188ffbb8b7c",
+          "bytes": 2209
+        }
+      ]
+    },
+    {
+      "ecosystem": "npm",
+      "name": "@tailwindcss/oxide-wasm32-wasi",
+      "version": "4.3.4",
+      "declaredLicense": "MIT",
+      "repository": "https://github.com/tailwindlabs/tailwindcss",
+      "evidenceUrls": [
+        "https://registry.npmjs.org/%40tailwindcss%2Foxide-wasm32-wasi/4.3.4",
+        "https://api.github.com/repos/tailwindlabs/tailwindcss/git/ref/tags/v4.3.4",
+        "https://raw.githubusercontent.com/tailwindlabs/tailwindcss/2626ae6ceddf36069ab6d55c53a5857c1e2e360a/crates/node/package.json"
+      ],
+      "notes": "The release tag v4.3.4 resolves to 2626ae6ceddf36069ab6d55c53a5857c1e2e360a. The same-monorepo oxide wrapper confirms version 4.3.4 and MIT. The root license is retained, including for this optional npm dev/build tool.",
+      "files": [
+        {
+          "file": "npm-tailwindcss-oxide-wasm32-wasi-4.3.4.LICENSE.txt",
+          "kind": "license",
+          "url": "https://raw.githubusercontent.com/tailwindlabs/tailwindcss/2626ae6ceddf36069ab6d55c53a5857c1e2e360a/LICENSE",
+          "sha256": "60e0b68c0f35c078eef3a5d29419d0b03ff84ec1df9c3f9d6e39a519a5ae7985",
+          "bytes": 1071
+        }
+      ]
+    },
+    {
+      "ecosystem": "npm",
+      "name": "@tauri-apps/cli-win32-x64-msvc",
+      "version": "2.12.4",
+      "declaredLicense": "Apache-2.0 OR MIT",
+      "repository": "https://github.com/tauri-apps/tauri",
+      "publishedRevision": "993038c49185307dfc895ab7657d77ca0d5ed7c7",
+      "evidenceUrls": [
+        "https://registry.npmjs.org/%40tauri-apps%2Fcli-win32-x64-msvc/2.12.4",
+        "https://registry.npmjs.org/%40tauri-apps%2Fcli/2.12.4",
+        "https://raw.githubusercontent.com/tauri-apps/tauri/993038c49185307dfc895ab7657d77ca0d5ed7c7/packages/cli/package.json"
+      ],
+      "notes": "Both license texts are from the CLI wrapper in the same monorepo at the wrapper's registry gitHead. The wrapper and native binding declare the same version, repository, and license. Generation additionally compares the saved texts against the installed wrapper license files; neither alternative is selected or modified.",
+      "wrapper": {
+        "packagePath": "node_modules/@tauri-apps/cli",
+        "name": "@tauri-apps/cli",
+        "version": "2.12.4"
+      },
+      "files": [
+        {
+          "file": "npm-tauri-apps-cli-win32-x64-msvc-2.12.4.LICENSE-APACHE-2.0.txt",
+          "kind": "license",
+          "url": "https://raw.githubusercontent.com/tauri-apps/tauri/993038c49185307dfc895ab7657d77ca0d5ed7c7/packages/cli/LICENSE-APACHE-2.0",
+          "wrapperFile": "LICENSE-APACHE-2.0",
+          "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+          "bytes": 10174
+        },
+        {
+          "file": "npm-tauri-apps-cli-win32-x64-msvc-2.12.4.LICENSE-MIT.txt",
+          "kind": "license",
+          "url": "https://raw.githubusercontent.com/tauri-apps/tauri/993038c49185307dfc895ab7657d77ca0d5ed7c7/packages/cli/LICENSE-MIT",
+          "wrapperFile": "LICENSE-MIT",
+          "sha256": "9dd42ea92cff2ede5cd477cbfcce051b2d0115c0ac7f368ee88cb545055dff1d",
+          "bytes": 1090
+        }
+      ]
+    },
+    {
+      "ecosystem": "npm",
+      "name": "@tybys/wasm-util",
+      "version": "0.10.3",
+      "declaredLicense": "MIT",
+      "repository": "https://github.com/toyobayashi/wasm-util",
+      "publishedRevision": "efb17cc128a30fb16b58127738f09c8871a3f7d1",
+      "evidenceUrls": [
+        "https://registry.npmjs.org/%40tybys%2Fwasm-util/0.10.3",
+        "https://raw.githubusercontent.com/toyobayashi/wasm-util/efb17cc128a30fb16b58127738f09c8871a3f7d1/package.json",
+        "https://api.github.com/repos/toyobayashi/wasm-util/commits/a16b188d44ae43cc91edb71996ba2b43ff0996d9"
+      ],
+      "notes": "The published gitHead declares MIT but has no LICENSE or full inline license text. The official repository later added LICENSE in commit a16b188d44ae43cc91edb71996ba2b43ff0996d9. That upstream-authored notice is supplied verbatim, with its actual copyright wording; it is not represented as a file shipped in version 0.10.3. This is a transitive optional npm dev/build tool, still included conservatively.",
+      "files": [
+        {
+          "file": "npm-tybys-wasm-util-0.10.3.LICENSE.txt",
+          "kind": "license",
+          "url": "https://raw.githubusercontent.com/toyobayashi/wasm-util/a16b188d44ae43cc91edb71996ba2b43ff0996d9/LICENSE",
+          "sha256": "09e436100bf926e78df875ec80cf3d0c643dfec779b52cfe2aa96afa0de714cb",
+          "bytes": 1076
+        }
+      ]
+    },
+    {
+      "ecosystem": "npm",
+      "name": "react-remove-scroll-bar",
+      "version": "2.3.8",
+      "declaredLicense": "MIT",
+      "repository": "https://github.com/theKashey/react-remove-scroll-bar",
+      "publishedRevision": "b3b1287aad81def2e2ae707274b74531b61ddbaf",
+      "evidenceUrls": [
+        "https://registry.npmjs.org/react-remove-scroll-bar/2.3.8",
+        "https://api.github.com/repos/theKashey/react-remove-scroll-bar/commits/7301c160fda44cb8cf2b9fdfde61efad35736196"
+      ],
+      "notes": "The installed package and registry metadata declare MIT. The registry gitHead b3b1287aad81def2e2ae707274b74531b61ddbaf is not available from the declared GitHub repository; the repository package manifest remains at 2.3.7. The official repository's LICENSE, introduced in commit 7301c160fda44cb8cf2b9fdfde61efad35736196, is supplied verbatim as an upstream project license notice, not misrepresented as a release-specific file or backdated copyright.",
+      "files": [
+        {
+          "file": "npm-react-remove-scroll-bar-2.3.8.LICENSE.txt",
+          "kind": "license",
+          "url": "https://raw.githubusercontent.com/theKashey/react-remove-scroll-bar/7301c160fda44cb8cf2b9fdfde61efad35736196/LICENSE",
+          "sha256": "a79aae0c0f21990d9d963bb3c5a79cdcea9a46f8523ba55c58d7fe776b6ebc84",
+          "bytes": 1093
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "bundle": {
+    "targets": ["nsis"],
+    "windows": {
+      "allowDowngrades": false,
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": ["Spanish", "English"],
+        "displayLanguageSelector": true,
+        "installerIcon": "icons/icon.ico"
+      }
+    }
+  }
+}
