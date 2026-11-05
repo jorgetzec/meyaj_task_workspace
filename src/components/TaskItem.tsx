@@ -6,6 +6,7 @@ import { useAppStore } from "../stores/useAppStore";
 import { useT } from "../i18n";
 import type { TaskNode } from "../utils/tasks";
 import { yyyymmdd } from "../utils/format";
+import Dialog from "./Dialog";
 
 const TASK_INDENT = 32;
 
@@ -73,6 +74,10 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
   const [childDraft, setChildDraft] = useState("");
   const [completing, setCompleting] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const deleteCancelRef = useRef<HTMLButtonElement>(null);
 
   const handleComplete = async () => {
     if (hasChildren || completingRef.current) return;
@@ -86,6 +91,16 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
     } finally {
       completingRef.current = false;
     }
+  };
+
+  const confirmDelete = async () => {
+    if (deleting) return;
+    setDeleting(true);
+    setDeleteError(null);
+    const deleted = await deleteTask(task.id);
+    setDeleting(false);
+    if (deleted) setDeleteOpen(false);
+    else setDeleteError(t("task.deleteError"));
   };
 
   const saveEdit = () => {
@@ -150,9 +165,11 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
               }
             : {}),
         }}
-        className={`group flex items-start gap-2 rounded px-2 py-[3px] hover:bg-[var(--bg-hover)] ${
-          task.id === lastCreatedTaskId ? "task-new" : ""
-        } ${dragProps?.isDragging ? "opacity-40" : ""}`}
+        className={`group flex items-start gap-2 px-2 py-[3px] hover:bg-[var(--bg-hover)] ${
+          depth > 0 ? "rounded-r" : "rounded"
+        } ${task.id === lastCreatedTaskId ? "task-new" : ""} ${
+          dragProps?.isDragging ? "opacity-40" : ""
+        }`}
       >
         {dragProps ? (
           <button
@@ -184,6 +201,7 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
           {editing ? (
             <input
               autoFocus
+              aria-label={t("task.edit")}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onBlur={saveEdit}
@@ -218,19 +236,22 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
 
         <div
           className={`relative mt-[2px] flex items-center gap-0.5 transition ${
-            moveOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            moveOpen ? "opacity-100" : "opacity-0 focus-within:opacity-100 group-hover:opacity-100"
           }`}
         >
           {depth > 0 && (
             <button
+              type="button"
               onClick={() => setTaskParent(task.id, null)}
               title={t("task.outdent")}
+              aria-label={t("task.outdent")}
               className="flex h-6 w-6 items-center justify-center rounded text-[var(--text-faint)] hover:bg-[var(--bg-active)] hover:text-[var(--text)]"
             >
               <CornerUpLeft size={13} />
             </button>
           )}
           <button
+            type="button"
             disabled={savingChild}
             onClick={() => {
               if (childSubmitting.current) return;
@@ -238,23 +259,28 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
               setAddingChild((v) => !v);
             }}
             title={t("task.addSubtask")}
+            aria-label={t("task.addSubtask")}
             className="flex h-6 w-6 items-center justify-center rounded text-[var(--text-faint)] hover:bg-[var(--bg-active)] hover:text-[var(--text)]"
           >
             <Plus size={13} />
           </button>
           <button
+            type="button"
             onClick={() => setMoveOpen((v) => !v)}
             title={t("task.move")}
+            aria-label={t("task.move")}
             className="flex h-6 w-6 items-center justify-center rounded text-[var(--text-faint)] hover:bg-[var(--bg-active)] hover:text-[var(--text)]"
           >
             <FolderInput size={13} />
           </button>
           <button
-            onClick={() => deleteTask(task.id)}
+            type="button"
+            onClick={() => { setDeleteError(null); setDeleteOpen(true); }}
             title={t("task.delete")}
+            aria-label={t("task.delete")}
             className="flex h-6 w-6 items-center justify-center rounded text-[var(--text-faint)] hover:bg-[var(--bg-active)] hover:text-[var(--danger)]"
           >
-            <Trash2 size={13} />
+            <Trash2 size={13} aria-hidden="true" />
           </button>
 
           {moveOpen && (
@@ -290,6 +316,7 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
         >
           <input
             autoFocus
+            aria-label={t("task.subtaskPlaceholder")}
             value={childDraft}
             readOnly={savingChild}
             onChange={(e) => setChildDraft(e.target.value)}
@@ -311,6 +338,49 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
             className="mono flex-1 bg-transparent text-[0.8125rem] text-[var(--text)] outline-none placeholder:text-[var(--text-faint)]"
           />
         </div>
+      )}
+
+      {deleteOpen && (
+        <Dialog
+          open
+          onClose={() => { if (!deleting) setDeleteOpen(false); }}
+          label={t("task.deleteTitle")}
+          className="w-[380px] max-w-full p-4"
+          initialFocusRef={deleteCancelRef}
+        >
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--danger)]/15 text-[var(--danger)]">
+              <Trash2 size={16} aria-hidden="true" />
+            </span>
+            <div className="min-w-0">
+              <h2 className="text-sm font-semibold text-[var(--text)]">{t("task.deleteTitle")}</h2>
+              <p className="mt-1 truncate text-[0.8125rem] font-medium text-[var(--accent)]">{task.content}</p>
+            </div>
+          </div>
+          <p className="mt-3 text-xs leading-relaxed text-[var(--text-dim)]">
+            {hasChildren ? t("task.deleteWarningChildren") : t("task.deleteWarning")}
+          </p>
+          {deleteError && <p role="alert" className="mt-2 text-xs text-[var(--danger)]">{deleteError}</p>}
+          <div className="mt-4 flex justify-end gap-2">
+            <button
+              ref={deleteCancelRef}
+              type="button"
+              disabled={deleting}
+              onClick={() => setDeleteOpen(false)}
+              className="rounded px-3 py-1.5 text-[0.8125rem] text-[var(--text-dim)] hover:bg-[var(--bg-hover)] hover:text-[var(--text)] disabled:opacity-50"
+            >
+              {t("task.deleteCancel")}
+            </button>
+            <button
+              type="button"
+              disabled={deleting}
+              onClick={() => { void confirmDelete(); }}
+              className="rounded bg-[var(--danger)] px-3 py-1.5 text-[0.8125rem] font-medium text-white disabled:opacity-50"
+            >
+              {deleting ? t("task.deleting") : t("task.deleteConfirm")}
+            </button>
+          </div>
+        </Dialog>
       )}
 
       {node.children.map((child) => (

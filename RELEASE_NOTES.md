@@ -5,7 +5,9 @@ First public build of Meyaj, a local-first desktop task workspace.
 ## Highlights
 
 - Panels and projects with nested tasks, including permanent panel deletion with confirmation
-- Clearly indented child tasks with visible hierarchy guides
+- Clearly indented child tasks with straight hierarchy guides
+- Accessible dialogs with focus trapping, Escape handling, and focus restoration
+- Confirmation before deleting a task, including its subtasks
 - Completion rules for parent and child tasks
 - Custom classifiers and cross-project hashtag groups
 - Editable, closable, and reorderable views
@@ -17,7 +19,7 @@ First public build of Meyaj, a local-first desktop task workspace.
 ## Windows x64
 
 - Installer: `Meyaj_0.1.0_x64-setup.exe`
-- SHA-256: `50888dc4c7e87d0a17e086731dd0402a7fb9fd66622948d985ddea6acf55a97a`
+- SHA-256: `ebf6c1fcf3d3fb1f7be2e2139e2dc787e1e163f8935ca71dde77b2f00b7862fc`
 - Per-user installation; no administrator access required
 - Installer languages: Spanish and English
 - Intended for Windows 10/11 x64 with WebView2
@@ -26,7 +28,7 @@ The installer is **not code-signed**. Windows SmartScreen may show an “Unknown
 
 ## macOS
 
-This release asset is for Windows. A macOS `.dmg` must be built on macOS and is not cross-compiled from Windows. An unsigned DMG can be built locally, but Gatekeeper warnings require Apple Developer ID signing and notarization for a normal public distribution.
+This release asset is for Windows. An unsigned DMG can be built locally; this release does not include a macOS asset.
 
 ## License
 

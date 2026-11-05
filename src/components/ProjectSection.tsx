@@ -169,11 +169,14 @@ export default function ProjectSection({ project, roots }: Props) {
           <GripVertical size={13} />
         </button>
         <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
             setCollapsed((v) => !v);
           }}
           title={collapsed ? t("section.expand") : t("section.collapse")}
+          aria-label={collapsed ? t("section.expand") : t("section.collapse")}
+          aria-expanded={!collapsed}
           className="flex h-5 w-5 shrink-0 items-center justify-center rounded text-[var(--text-faint)] hover:bg-[var(--bg-active)] hover:text-[var(--text)]"
         >
           <ChevronRight
@@ -194,14 +197,16 @@ export default function ProjectSection({ project, roots }: Props) {
         </span>
 
         <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
             startAdd();
           }}
           title={t("section.addTask")}
-          className="ml-auto flex h-5 w-5 items-center justify-center rounded text-[var(--text-faint)] opacity-0 transition hover:bg-[var(--bg-active)] hover:text-[var(--text)] group-hover:opacity-100"
+          aria-label={t("section.addTask")}
+          className="ml-auto flex h-5 w-5 items-center justify-center rounded text-[var(--text-faint)] opacity-0 transition hover:bg-[var(--bg-active)] hover:text-[var(--text)] focus:opacity-100 group-hover:opacity-100"
         >
-          <Plus size={13} />
+          <Plus size={13} aria-hidden="true" />
         </button>
         <div ref={actionsRef} className="relative" onClick={(event) => event.stopPropagation()}>
           <button
@@ -270,6 +275,7 @@ export default function ProjectSection({ project, roots }: Props) {
             <div className="relative flex items-center gap-2 px-6 py-1">
               <input
                 autoFocus
+                aria-label={t("section.newTask")}
                 value={draft}
                 readOnly={saving}
                 onChange={(e) => setDraft(e.target.value)}

@@ -18,7 +18,9 @@ export default function StatusBar() {
         {tasks.length} {t("status.active")} | {history.length} {t("status.completed")} |{" "}
         {t("status.panel")}: {panelTitle}
       </span>
-      {error && <span className="text-[var(--danger)]">{error}</span>}
+      <span role="status" aria-live="polite" className="min-w-0 truncate text-[var(--danger)]">
+        {error}
+      </span>
     </footer>
   );
 }

@@ -47,7 +47,7 @@ The installer currently has **no code-signing certificate**. Windows SmartScreen
 Generate the checksum announced with the release:
 
 ```powershell
-Get-FileHash .\src-tauri\target\release\bundle\nsis\Meyaj_0.1.0_x64-setup.exe -Algorithm SHA256
+certutil -hashfile .\src-tauri\target\release\bundle\nsis\Meyaj_0.1.0_x64-setup.exe SHA256
 ```
 
 Test the installer on a clean Windows x64 machine or virtual machine. Verify first launch, the logo, Settings → **About Meyaj**, import of both public examples, task creation, completion rules, and uninstall.
@@ -90,6 +90,8 @@ On GitHub, open **Releases → Draft a new release**:
 4. Attach `Meyaj_0.1.0_x64-setup.exe` and `SHA256SUMS.txt`.
 5. Publish the release.
 
+The web interface is sufficient and does not require extra tooling.
+
 If GitHub CLI is installed and authenticated, the equivalent command is:
 
 ```sh
@@ -99,6 +101,8 @@ gh release create v0.1.0 \
   --title "Meyaj 0.1.0" \
   --notes-file RELEASE_NOTES.md
 ```
+
+If `gh` is missing, install it with `winget install --id GitHub.cli`, start a new terminal, and run `gh auth login`.
 
 Update the checksum in `RELEASE_NOTES.md` whenever the installer is rebuilt for the same version.
 

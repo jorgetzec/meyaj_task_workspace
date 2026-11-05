@@ -20,13 +20,19 @@ export default function HashtagPanel() {
   const widthRef = useRef(width);
   widthRef.current = width;
 
+  const persistWidth = (next: number) => {
+    const clamped = Math.min(MAX_W, Math.max(MIN_W, next));
+    setWidth(clamped);
+    localStorage.setItem("meyaj-hashtag-width", String(clamped));
+    return clamped;
+  };
+
   const startResize = (e: React.PointerEvent) => {
     e.preventDefault();
     const startX = e.clientX;
     const startWidth = widthRef.current;
     const onMove = (ev: PointerEvent) => {
-      const next = startWidth + (startX - ev.clientX);
-      setWidth(Math.min(MAX_W, Math.max(MIN_W, next)));
+      setWidth(Math.min(MAX_W, Math.max(MIN_W, startWidth + (startX - ev.clientX))));
     };
     const onUp = () => {
       localStorage.setItem("meyaj-hashtag-width", String(widthRef.current));
@@ -35,6 +41,16 @@ export default function HashtagPanel() {
     };
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
+  };
+
+  const onResizeKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      event.preventDefault();
+      persistWidth(width + (event.key === "ArrowLeft" ? 16 : -16));
+    } else if (event.key === "Home" || event.key === "End") {
+      event.preventDefault();
+      persistWidth(event.key === "Home" ? MIN_W : MAX_W);
+    }
   };
 
   const counts = useMemo(() => hashtagCounts(tasks), [tasks]);
@@ -54,9 +70,17 @@ export default function HashtagPanel() {
       style={{ width }}
     >
       <div
+        role="separator"
+        aria-orientation="vertical"
+        aria-label={t("hashtag.resize")}
+        aria-valuemin={MIN_W}
+        aria-valuemax={MAX_W}
+        aria-valuenow={width}
+        tabIndex={0}
+        title={t("hashtag.resize")}
         onPointerDown={startResize}
-        title="Ajustar ancho"
-        className="absolute left-0 top-0 z-10 h-full w-1 cursor-col-resize hover:bg-[var(--accent)]"
+        onKeyDown={onResizeKeyDown}
+        className="absolute -left-1 top-0 z-10 h-full w-2 cursor-col-resize rounded hover:bg-[var(--accent)]"
       />
 
       <div className="border-b border-[var(--border)] px-3 py-2">

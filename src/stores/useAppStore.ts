@@ -68,7 +68,7 @@ interface AppStore {
   createProject: (label: string, colorAccent?: string | null) => Promise<Project | null>;
   createTask: (input: Omit<CreateTaskInput, "panelId">) => Promise<boolean>;
   updateTask: (taskId: string, content: string) => Promise<void>;
-  deleteTask: (taskId: string) => Promise<void>;
+  deleteTask: (taskId: string) => Promise<boolean>;
   completeTask: (taskId: string) => Promise<boolean>;
   setTaskParent: (taskId: string, parentTaskId: string | null) => Promise<void>;
   moveTask: (taskId: string, projectId: string) => Promise<void>;
@@ -488,8 +488,10 @@ export const useAppStore = create<AppStore>((set, get) => {
       try {
         const state = await api.deleteTask(taskId);
         applyState(state);
+        return true;
       } catch (e) {
         set({ error: String(e) });
+        return false;
       }
     },
 

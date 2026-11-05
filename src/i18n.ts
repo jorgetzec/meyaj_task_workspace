@@ -66,6 +66,7 @@ const es: Dict = {
   "palette.placeholder": "Elegir clasificador… (escribe para filtrar)",
   "palette.empty": "Sin clasificadores.",
   "palette.create": "Crear clasificador",
+  "palette.label": "Elegir clasificador",
 
   "search.placeholder": "Buscar tareas e historial…",
   "search.empty": "Sin resultados.",
@@ -74,6 +75,7 @@ const es: Dict = {
 
   "hashtag.title": "Pendientes clave",
   "hashtag.hint": "Escribe #hashtag al final de una tarea para agruparla aquí.",
+  "hashtag.resize": "Ajustar ancho del panel de pendientes clave",
 
   "history.completed": "completadas",
   "history.sortCompleted": "Completado",
@@ -81,6 +83,7 @@ const es: Dict = {
   "history.sortProject": "Proyecto",
   "history.empty": "Aún no hay tareas completadas en este panel.",
   "history.restore": "Restaurar",
+  "history.sort": "Ordenar historial",
 
   "status.active": "activas",
   "status.completed": "completadas",
@@ -105,6 +108,7 @@ const es: Dict = {
   "settings.default": "Por defecto",
   "settings.classifiers": "Clasificadores",
   "settings.classifierPlaceholder": "Nuevo clasificador…",
+  "settings.addClassifier": "Añadir clasificador",
   "settings.importTheme": "Importar tema",
   "settings.clearTheme": "Quitar tema",
   "settings.themeFormat": "Importa un JSON con name y colors. Ejemplo: {\"name\":\"Mi tema\",\"colors\":{\"bg\":\"#121216\",\"accent\":\"#7b9bff\"}}. Los colores no incluidos usan la base oscura.",
@@ -116,6 +120,7 @@ const es: Dict = {
     "projectForm.namePlaceholder": "Rediseño del sitio web",
   "projectForm.code": "Código (short name)",
   "projectForm.color": "Color de acento",
+  "projectForm.noColor": "Sin color",
   "projectForm.preview": "Vista previa de la línea:",
   "projectForm.cancel": "Cancelar",
   "projectForm.create": "Crear proyecto",
@@ -128,6 +133,14 @@ const es: Dict = {
   "task.delete": "Eliminar",
   "task.noOtherProjects": "Sin otros proyectos",
   "task.subtaskPlaceholder": "Nueva subtarea…",
+  "task.edit": "Editar tarea",
+  "task.deleteTitle": "Eliminar tarea",
+  "task.deleteWarning": "Se eliminará esta tarea permanentemente. Esta acción no se puede deshacer.",
+  "task.deleteWarningChildren": "Se eliminarán esta tarea y sus subtareas permanentemente. Esta acción no se puede deshacer.",
+  "task.deleteConfirm": "Eliminar tarea",
+  "task.deleteCancel": "Cancelar",
+  "task.deleting": "Eliminando…",
+  "task.deleteError": "No se pudo eliminar la tarea. Inténtalo de nuevo.",
 
   "section.addTask": "Añadir tarea a este proyecto",
   "section.moveUp": "Subir proyecto",
@@ -220,6 +233,7 @@ const en: Dict = {
   "palette.placeholder": "Choose classifier… (type to filter)",
   "palette.empty": "No classifiers.",
   "palette.create": "Create classifier",
+  "palette.label": "Choose classifier",
 
   "search.placeholder": "Search tasks and history…",
   "search.empty": "No results.",
@@ -228,6 +242,7 @@ const en: Dict = {
 
   "hashtag.title": "Key tasks",
   "hashtag.hint": "Write #hashtag at the end of a task to group it here.",
+  "hashtag.resize": "Resize the key tasks panel",
 
   "history.completed": "completed",
   "history.sortCompleted": "Completed",
@@ -235,6 +250,7 @@ const en: Dict = {
   "history.sortProject": "Project",
   "history.empty": "No completed tasks in this panel yet.",
   "history.restore": "Restore",
+  "history.sort": "Sort history",
 
   "status.active": "active",
   "status.completed": "completed",
@@ -259,6 +275,7 @@ const en: Dict = {
   "settings.default": "Default",
   "settings.classifiers": "Classifiers",
   "settings.classifierPlaceholder": "New classifier…",
+  "settings.addClassifier": "Add classifier",
   "settings.importTheme": "Import theme",
   "settings.clearTheme": "Remove theme",
   "settings.themeFormat": "Import JSON with name and colors. Example: {\"name\":\"My theme\",\"colors\":{\"bg\":\"#121216\",\"accent\":\"#7b9bff\"}}. Missing colors use the dark base.",
@@ -270,6 +287,7 @@ const en: Dict = {
     "projectForm.namePlaceholder": "Website Refresh",
   "projectForm.code": "Code (short name)",
   "projectForm.color": "Accent color",
+  "projectForm.noColor": "No color",
   "projectForm.preview": "Line preview:",
   "projectForm.cancel": "Cancel",
   "projectForm.create": "Create project",
@@ -282,6 +300,14 @@ const en: Dict = {
   "task.delete": "Delete",
   "task.noOtherProjects": "No other projects",
   "task.subtaskPlaceholder": "New subtask…",
+  "task.edit": "Edit task",
+  "task.deleteTitle": "Delete task",
+  "task.deleteWarning": "This task will be permanently deleted. This action cannot be undone.",
+  "task.deleteWarningChildren": "This task and its subtasks will be permanently deleted. This action cannot be undone.",
+  "task.deleteConfirm": "Delete task",
+  "task.deleteCancel": "Cancel",
+  "task.deleting": "Deleting…",
+  "task.deleteError": "The task could not be deleted. Try again.",
 
   "section.addTask": "Add task to this project",
   "section.moveUp": "Move project up",

@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import {
   AlertTriangle,
   Archive,
@@ -13,6 +13,7 @@ import {
 import { useAppStore } from "../stores/useAppStore";
 import { useT } from "../i18n";
 import type { Panel } from "../types";
+import Dialog from "./Dialog";
 
 type Editor = {
   kind: "create" | "rename";
@@ -40,25 +41,12 @@ export default function Sidebar() {
   const [deleteTarget, setDeleteTarget] = useState<Panel | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const deleteCancelRef = useRef<HTMLButtonElement>(null);
   const archivedId = useId();
   const errorId = useId();
-  const deleteTitleId = useId();
-  const deleteWarningId = useId();
   const activePanels = panels.filter((p) => !p.archived);
   const archivedPanels = panels.filter((p) => p.archived);
 
-  useEffect(() => {
-    if (!deleteTarget) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !deleting) {
-        event.preventDefault();
-        setDeleteTarget(null);
-        setDeleteError(null);
-      }
-    };
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [deleteTarget, deleting]);
 
   const askToDelete = (panel: Panel) => {
     if (panels.length <= 1) return;
@@ -323,24 +311,19 @@ export default function Sidebar() {
     </aside>
 
     {deleteTarget && (
-      <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-        onMouseDown={() => { if (!deleting) { setDeleteTarget(null); setDeleteError(null); } }}
+      <Dialog
+        open
+        onClose={() => { if (!deleting) { setDeleteTarget(null); setDeleteError(null); } }}
+        label={t("sidebar.deleteTitle")}
+        className="w-[380px] max-w-full p-4"
+        initialFocusRef={deleteCancelRef}
       >
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={deleteTitleId}
-          aria-describedby={deleteWarningId}
-          className="w-[380px] max-w-full rounded-lg border border-[var(--border-strong)] bg-[var(--bg-elevated)] p-4 shadow-2xl"
-          onMouseDown={(event) => event.stopPropagation()}
-        >
           <div className="flex items-start gap-3">
             <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--danger)]/15 text-[var(--danger)]">
               <AlertTriangle size={17} aria-hidden="true" />
             </span>
             <div className="min-w-0">
-              <h2 id={deleteTitleId} className="text-sm font-semibold text-[var(--text)]">
+              <h2 className="text-sm font-semibold text-[var(--text)]">
                 {t("sidebar.deleteTitle")}
               </h2>
               <p className="mt-1 truncate text-[0.8125rem] font-medium text-[var(--accent)]">
@@ -348,7 +331,7 @@ export default function Sidebar() {
               </p>
             </div>
           </div>
-          <p id={deleteWarningId} className="mt-3 text-xs leading-relaxed text-[var(--text-dim)]">
+          <p className="mt-3 text-xs leading-relaxed text-[var(--text-dim)]">
             {t("sidebar.deleteWarning")}
           </p>
           {deleteError && (
@@ -358,8 +341,8 @@ export default function Sidebar() {
           )}
           <div className="mt-4 flex justify-end gap-2">
             <button
+              ref={deleteCancelRef}
               type="button"
-              autoFocus
               disabled={deleting}
               onClick={() => { setDeleteTarget(null); setDeleteError(null); }}
               className="rounded px-3 py-1.5 text-[0.8125rem] text-[var(--text-dim)] hover:bg-[var(--bg-hover)] hover:text-[var(--text)] disabled:opacity-50"
@@ -375,8 +358,7 @@ export default function Sidebar() {
               {deleting ? t("sidebar.deleteWorking") : t("sidebar.deleteConfirm")}
             </button>
           </div>
-        </div>
-      </div>
+      </Dialog>
     )}
     </>
   );

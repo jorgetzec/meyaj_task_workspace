@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Check, Undo2 } from "lucide-react";
 import { useAppStore } from "../stores/useAppStore";
 import { useT } from "../i18n";
-import { formatDate } from "../utils/format";
+import { yyyymmdd } from "../utils/format";
 
 type SortKey = "completedAt" | "createdAt" | "project";
 
@@ -33,6 +33,7 @@ export default function HistoryView() {
         </span>
         <select
           value={sortKey}
+          aria-label={t("history.sort")}
           onChange={(e) => setSortKey(e.target.value as SortKey)}
           className="rounded border border-[var(--border-strong)] bg-[var(--bg-elevated)] px-2 py-1 text-[0.75rem] text-[var(--text)] outline-none"
         >
@@ -66,15 +67,17 @@ export default function HistoryView() {
               </span>
             </div>
             <span className="flex shrink-0 items-center gap-1 text-[0.6875rem] text-[var(--text-faint)]">
-              <Check size={11} />
-              {formatDate(h.completedAt)}
+              <Check size={11} aria-hidden="true" />
+              {yyyymmdd(h.completedAt)}
             </span>
             <button
+              type="button"
               onClick={() => restoreTask(h.id)}
               title={t("history.restore")}
-              className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-[var(--text-faint)] opacity-0 transition hover:bg-[var(--bg-active)] hover:text-[var(--text)] group-hover:opacity-100"
+              aria-label={t("history.restore")}
+              className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-[var(--text-faint)] opacity-0 transition hover:bg-[var(--bg-active)] hover:text-[var(--text)] focus:opacity-100 group-hover:opacity-100"
             >
-              <Undo2 size={13} />
+              <Undo2 size={13} aria-hidden="true" />
             </button>
           </li>
         ))}

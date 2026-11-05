@@ -102,48 +102,60 @@ export default function TitleBar() {
           {t("title.export")}
         </button>
         <button
+          type="button"
           onClick={() => setSearchOpen(true)}
           title={t("title.searchTooltip")}
+          aria-label={t("title.search")}
           className="flex h-7 w-7 items-center justify-center rounded text-[var(--text-dim)] transition hover:bg-[var(--bg-hover)] hover:text-[var(--text)]"
         >
-          <Search size={14} />
+          <Search size={14} aria-hidden="true" />
         </button>
         <button
+          type="button"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           title={t("title.theme")}
+          aria-label={t("title.theme")}
           className="flex h-7 w-7 items-center justify-center rounded text-[var(--text-dim)] transition hover:bg-[var(--bg-hover)] hover:text-[var(--text)]"
         >
-          {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
+          {theme === "dark" ? <Sun size={14} aria-hidden="true" /> : <Moon size={14} aria-hidden="true" />}
         </button>
         <button
+          type="button"
           onClick={() => setSettingsOpen(true)}
           title={t("title.settings")}
+          aria-label={t("title.settings")}
           className="flex h-7 w-7 items-center justify-center rounded text-[var(--text-dim)] transition hover:bg-[var(--bg-hover)] hover:text-[var(--text)]"
         >
-          <Settings size={14} />
+          <Settings size={14} aria-hidden="true" />
         </button>
 
         <div className="ml-2 flex h-full items-stretch">
           <button
+            type="button"
             onClick={() => appWindow.minimize()}
             title={t("title.minimize")}
+            aria-label={t("title.minimize")}
             className="flex w-10 items-center justify-center text-[var(--text-dim)] transition hover:bg-[var(--bg-hover)] hover:text-[var(--text)]"
           >
-            <Minus size={14} />
+            <Minus size={14} aria-hidden="true" />
           </button>
           <button
+            type="button"
             onClick={toggleMaximize}
             title={maximized ? t("title.restore") : t("title.maximize")}
+            aria-label={maximized ? t("title.restore") : t("title.maximize")}
             className="flex w-10 items-center justify-center text-[var(--text-dim)] transition hover:bg-[var(--bg-hover)] hover:text-[var(--text)]"
           >
-            {maximized ? <Copy size={13} /> : <Square size={13} />}
+            {maximized ? <Copy size={13} aria-hidden="true" /> : <Square size={13} aria-hidden="true" />}
           </button>
           <button
+            type="button"
             onClick={() => appWindow.close()}
             title={t("title.close")}
+            aria-label={t("title.close")}
             className="flex w-10 items-center justify-center text-[var(--text-dim)] transition hover:bg-[var(--danger)] hover:text-white"
           >
-            <X size={15} />
+            <X size={15} aria-hidden="true" />
           </button>
         </div>
       </div>

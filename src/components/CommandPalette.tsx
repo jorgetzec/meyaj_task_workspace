@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Command } from "cmdk";
 import { Hash, FolderPlus } from "lucide-react";
 import { useT } from "../i18n";
+import Dialog from "./Dialog";
 
 interface Props {
   open: boolean;
@@ -33,24 +34,23 @@ export default function CommandPalette({
   );
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 pt-[16vh]"
-      onMouseDown={onClose}
+    <Dialog
+      open={open}
+      onClose={onClose}
+      label={t("palette.label")}
+      className="w-[520px] max-w-full"
+      initialFocusRef={inputRef}
     >
-      <div
-        className="w-[520px] overflow-hidden rounded-lg border border-[var(--border-strong)] bg-[var(--bg-elevated)] shadow-2xl"
-        onMouseDown={(e) => e.stopPropagation()}
-      >
         <Command shouldFilter={false}>
           <Command.Input
             ref={inputRef}
-            autoFocus
+            aria-label={t("palette.label")}
             value={query}
             onValueChange={setQuery}
             placeholder={t("palette.placeholder")}
             className="w-full border-b border-[var(--border)] bg-transparent px-4 py-3 text-sm text-[var(--text)] outline-none placeholder:text-[var(--text-faint)]"
           />
-          <Command.List className="max-h-[320px] overflow-y-auto p-1.5">
+          <Command.List className="max-h-[320px] overflow-y-auto overscroll-contain p-1.5">
             <Command.Empty className="px-3 py-6 text-center text-sm text-[var(--text-dim)]">
               {t("palette.empty")}
             </Command.Empty>
@@ -85,7 +85,6 @@ export default function CommandPalette({
             )}
           </Command.List>
         </Command>
-      </div>
-    </div>
+    </Dialog>
   );
 }
