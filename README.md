@@ -32,7 +32,8 @@ Panel: Work
 - **Panels define the workspace.** Keep different areas of work separate; rename them, archive them, and bring them back when needed.
 - **Projects keep tasks grounded.** Reorder projects, assign an icon and an accent color, or move a whole project to another panel without rebuilding its task tree.
 - **Classifiers describe the work.** Use your own short labels—such as `DESIGN`, `REVIEW`, or `DOCS`—rather than a fixed set of categories.
-- **Hashtags connect the work.** The **Key tasks** sidebar groups tagged tasks across projects in the current panel. Tags such as `#focus`, `#waiting`, and `#design/ui` are yours to define; they are not a separate priority system.
+- **Hashtags connect the work.** The **Key tasks** sidebar groups tagged tasks across every active panel, labels the panel each result comes from, and opens that panel at the task when selected. Tags such as `#focus`, `#waiting`, and `#design/ui` are yours to define; they are not a separate priority system.
+- **Classifiers can carry color.** Each kind of work can use a preset swatch or a hex value, and the color follows the classifier through tasks, hashtags, and history.
 - **Children make dependencies visible.** A parent cannot be completed while it has pending children. Completing its last child makes the parent available to complete; it does not close the parent automatically.
 
 ## Features
@@ -40,24 +41,25 @@ Panel: Work
 | Area | What you can do |
 | --- | --- |
 | **Workspace organization** | Create, rename, archive, and permanently delete panels; archived panels live in their own collapsible sidebar section. Deletion requires explicit confirmation and removes the panel's projects, tasks, and history. |
-| **Project organization** | Reorder projects, choose from ten project icons, set an accent color, and move projects between active panels. |
-| **Task hierarchy** | Create nested subtasks, edit task text, remove indentation, move a task and its descendants to another project, and complete children before their parent. |
-| **Views that stay yours** | Switch between All, By Project, By Month, and History. Rename, close, reopen, and reorder the view tabs; their layout is saved locally. |
+| **Project organization** | Reorder projects, choose from a broad icon set for coding, science, education, community, 3D work, and nature, set an accent color with a hex value, and move projects between active panels. |
+| **Task hierarchy** | Create nested subtasks, reorder children inside their parent, edit task text, remove indentation, move a task and its descendants to another project, and complete children before their parent. New tasks start at the top of their project or parent. |
+| **Views that stay yours** | Switch between All, By Project, By Month, Activity, and History. Rename, close, reopen, and reorder the view tabs; their layout is saved locally. |
 | **Fast capture** | Open the classifier palette with `/` or `Ctrl/Cmd+P`; type `#` or `##` at the start of the composer to select or create a project. |
 | **Visible confirmation** | Newly created tasks scroll into view, receive focus, and get a brief highlight. Reduced-motion preferences are respected. |
 | **Search and history** | Search active tasks and completed history with `Ctrl/Cmd+K`; restore completed work when needed. |
-| **Markdown portability** | Import standard Markdown checklists or a richer timestamp-and-classifier format; export the current panel to Markdown. |
-| **Appearance** | Dark, Light, Dracula, and Nord themes; importable color themes; separate task and interface fonts; font zoom. |
+| **Cross-panel key tasks** | Collect incomplete hashtagged tasks from every active panel, see their origin panel, and jump to the task. The sidebar can be collapsed into a narrow rail. |
+| **Markdown portability** | Import standard Markdown checklists or a richer timestamp-and-classifier format; export the current panel or every active panel, with a dated default file name. |
+| **Appearance** | Dark, Light, Dracula, and Nord themes; importable color themes that can be exported again as JSON; separate task and interface fonts; font zoom. |
 | **Language** | English and Spanish interface options. |
 | **Local storage** | SQLite for workspace data, with local interface preferences. No account or hosted backend is required. |
 
 ## Try it
 
-Meyaj is in **early development (0.1.0)**. Windows x64 builds are produced as an NSIS installer; source builds remain the development path. Early releases may still change the database or import format, so keep backups before upgrading.
+Meyaj is in **early development (0.2.0)**. Windows x64 builds are produced as an NSIS installer; source builds remain the development path. Early releases may still change the database or import format, so keep backups before upgrading.
 
 ### Install on Windows
 
-Download `Meyaj_0.1.0_x64-setup.exe` from the repository's **Releases** page. The installer is per-user, offers Spanish and English, and does not require administrator access.
+Download `Meyaj_0.2.0_x64-setup.exe` from the repository's **Releases** page. The installer is per-user, offers Spanish and English, and does not require administrator access.
 
 The current installer is **not code-signed**, so Windows SmartScreen may show an “Unknown publisher” warning. Verify the SHA-256 checksum published with the release before running it. If you build locally, the installer appears at `src-tauri/target/release/bundle/nsis/`.
 
@@ -105,7 +107,7 @@ Both files contain only synthetic content. The importer tests read these same fi
 3. **Keep typing to create something new.** If no project has that exact name, choose the explicit **Create project** option. Selecting a suggested project does not create a duplicate.
 4. **Choose a classifier with `/`**, or write a task directly. `DESIGN | Review the layout #focus` assigns a classifier and preserves the hashtag in the content.
 5. **Add children** from a task's `+` action. Children stay below their parent and inside its project.
-6. **Follow the work through different views.** Use project groups for context, the month view for creation dates, and History for completed work.
+6. **Follow the work through different views.** Use project groups for context, the month view for creation dates, Activity for how long tasks stay open, and History for completed work.
 
 The `# project` button beside the composer lets you change the destination without losing an existing draft. `Escape` cancels that selection. A hashtag inside task content remains a tag—not a project command.
 
@@ -170,11 +172,13 @@ Optional YAML front matter and fenced code blocks are ignored. `###` and `####` 
 - Existing project labels are reused within that panel. Project names and classifier names are not tied to any particular domain.
 - Completed items are stored as history entries, not as an editable completed subtree.
 - Plain text files are accepted only when their contents use the supported Markdown checklist syntax. CSV, JSON task exports, proprietary task-manager exports, and the separate `todo.txt` syntax are not implemented import formats.
-- Markdown export is a portable representation of a panel's tasks and history, **not a complete backup** of panels, icons, themes, and application settings. It keeps active-task nesting and calendar dates, but not timestamp precision or the project/subgroup labels attached to history entries.
+- Markdown export is a portable representation of a panel's tasks and history, or of every active panel at once, **not a complete backup** of panels, icons, themes, and application settings. It keeps active-task nesting and calendar dates, but not timestamp precision or the project/subgroup labels attached to history entries.
 
 ## Make the workspace feel like yours
 
 Choose a built-in theme in **Settings**, select task and interface fonts, or import a JSON color theme. The menus follow the active theme rather than relying on operating-system dropdown styling. Font choices use fonts installed on your computer, with system fallbacks; Meyaj does not bundle or download the listed fonts.
+
+Once a custom theme is loaded, **Export theme** saves it as JSON with a dated file name. That file is the suggested base for tweaking colors and importing the result again.
 
 [`public/meyaj-theme-example.json`](public/meyaj-theme-example.json) is a complete importable example. A minimal theme looks like this:
 
@@ -196,6 +200,8 @@ Colors may use supported hex, `rgb`/`rgba`, or `hsl`/`hsla` values. Missing toke
 ## Data and privacy
 
 Workspace data lives in `meyaj.db` inside Tauri's per-application data directory. Appearance, language, tab layout, and other interface preferences are stored locally in the webview.
+
+Development builds use a separate `com.meyaj.app.dev` profile and therefore a separate database, so working on the source never reads or writes the installed application's data.
 
 - No account or application-hosted cloud sync is required.
 - Tasks are not automatically published to this repository.

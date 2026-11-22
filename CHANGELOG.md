@@ -9,6 +9,61 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 Nothing yet.
 
+## [0.2.0] - 2026-11-22
+
+Feature release that connects panels, adds an activity timeline, and lets each task kind
+choose its own color.
+
+### Added
+
+- **Activity view.** A new tab draws one lane per task from its creation date to its
+  completion date, or to today while the task is open. Lanes are grouped inside each
+  project of the panel selected in the sidebar.
+- **Key tasks across panels.** The right sidebar now gathers incomplete hashtagged tasks
+  from every active panel and shows the panel each task comes from.
+- **Jump to a task.** Selecting a key task activates its panel, opens the All view,
+  scrolls to the task, and highlights it.
+- **Classifier colors.** Each classifier accepts a preset swatch or a `#RGB` /
+  `#RRGGBB` value from the Classifiers dialog. Classifiers without a color keep a
+  stable color derived from their name.
+- **Workspace export.** Export the current panel or every active panel to Markdown. The
+  suggested file name includes the export date, such as `Research_20261122.md` or
+  `meyaj_workspace_20261122.md`.
+- **Theme export.** Save the loaded custom theme as JSON so it can serve as the base for
+  a modified theme.
+- **Collapsible key-tasks panel.** The right sidebar can be hidden into a narrow rail and
+  restored with the width it had before.
+- **More project icons.** Added icons for education, collaboration and activism, 3D work,
+  research, institutions, and nature, including flowers and fruit.
+- **Subtask ordering.** Children can be reordered inside their parent with drag and drop
+  or the keyboard.
+- **Hex project colors.** Every project color menu accepts a `#RGB` or `#RRGGBB` value in
+  addition to the preset swatches.
+
+### Changed
+
+- New tasks now appear at the top of their project or parent instead of the end.
+- Classifier badges and inline hashtags take the classifier color. Project colors remain
+  reserved for project identity, icons, and activity bars.
+- The date shown on a task is plain text instead of a button-like badge.
+- Classifier management moved from Settings to its own dialog in the main toolbar.
+- Project icons sit inside a filled circle with a white glyph.
+- The activity view follows the active panel chosen in the sidebar instead of offering a
+  second panel selector.
+- Chip text and background opacity adapt to the light theme for readable contrast.
+- Search results now navigate: an active result reveals the task and a history result
+  opens the History view.
+- Development runs under the separate `com.meyaj.app.dev` profile with its own database,
+  so it never reads or writes the installed application's data.
+- The project version moved to `0.2.0` across `package.json`, `package-lock.json`,
+  `src-tauri/Cargo.toml`, `src-tauri/Cargo.lock`, and `src-tauri/tauri.conf.json`.
+
+### Fixed
+
+- The search focus outline was clipped at the top of the dialog.
+- Clicking a key task while the activity view was open left the timeline in place instead
+  of showing the task.
+
 ## [0.1.1] - 2026-11-05
 
 Maintenance release focused on reliability and consistency.
@@ -67,6 +122,7 @@ First public build.
 - English and Spanish interface.
 - Per-user NSIS installer for Windows x64.
 
-[Unreleased]: https://github.com/jorgetzec/meyaj_task_workspace/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/jorgetzec/meyaj_task_workspace/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/jorgetzec/meyaj_task_workspace/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/jorgetzec/meyaj_task_workspace/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/jorgetzec/meyaj_task_workspace/releases/tag/v0.1.0
