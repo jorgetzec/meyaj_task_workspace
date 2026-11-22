@@ -45,7 +45,23 @@ const SANS_FONTS: { value: string; label: string }[] = [
   { value: 'system-ui, sans-serif', label: "System" },
 ];
 
-function inlineText(line: string): string {
+function themeDate(): string {
+  const now = new Date();
+  return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("");
+}
+
+function themeFileName(name: string): string {
+  const stem = name
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[<>:"/\\|?*\x00-\x1f]/g, "")
+    .trim()
+    .replace(/\s+/g, "_")
+    .replace(/[. ]+$/g, "") || "meyaj_theme";
+  return `${stem}_${themeDate()}.json`;
+}
+
+function inlineText(line: string) {
   return line
     .replace(/\*\*\*(.+?)\*\*\*/g, "$1")
     .replace(/\*\*(.+?)\*\*/g, "$1")
@@ -126,6 +142,24 @@ export default function SettingsModal() {
     }
   };
 
+  const handleExportTheme = () => {
+    if (!customTheme) return;
+    const contents = `${JSON.stringify({ name: customTheme.name, colors: customTheme.vars }, null, 2)}\n`;
+    const defaultName = themeFileName(customTheme.name);
+
+    if (isTauri()) {
+      setFilePicker({ mode: "theme-save", extensions: ["json"], defaultName, contents });
+      return;
+    }
+
+    const url = URL.createObjectURL(new Blob([contents], { type: "application/json" }));
+    const download = document.createElement("a");
+    download.href = url;
+    download.download = defaultName;
+    download.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <Dialog
       open={open}
@@ -179,15 +213,27 @@ export default function SettingsModal() {
                 {t("settings.importTheme")}
               </button>
               {customTheme && (
-                <button
-                  type="button"
-                  onClick={clearCustomTheme}
-                  className="rounded border border-[var(--border-strong)] px-3 py-1.5 text-[0.75rem] text-[var(--text-dim)] hover:bg-[var(--bg-hover)] hover:text-[var(--text)]"
-                >
-                  {t("settings.clearTheme")}
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={handleExportTheme}
+                    className="rounded border border-[var(--border-strong)] px-3 py-1.5 text-[0.75rem] text-[var(--text-dim)] hover:bg-[var(--bg-hover)] hover:text-[var(--text)]"
+                  >
+                    {t("settings.exportTheme")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={clearCustomTheme}
+                    className="rounded border border-[var(--border-strong)] px-3 py-1.5 text-[0.75rem] text-[var(--text-dim)] hover:bg-[var(--bg-hover)] hover:text-[var(--text)]"
+                  >
+                    {t("settings.clearTheme")}
+                  </button>
+                </>
               )}
             </div>
+            <p className="mt-2 text-[0.6875rem] leading-relaxed text-[var(--text-faint)]">
+              {t("settings.themeHelp")}
+            </p>
           </div>
 
           <div>
@@ -231,10 +277,6 @@ export default function SettingsModal() {
               label={t("settings.language")}
             />
           </div>
-
-          <p className="text-[0.6875rem] leading-relaxed text-[var(--text-faint)]">
-            {t("settings.themeFormat")}
-          </p>
 
           <section aria-label={t("settings.about")} className="space-y-2 border-t border-[var(--border)] pt-4 text-xs text-[var(--text-dim)]">
             <h2 className="font-semibold text-[var(--text)]">Meyaj {version}</h2>

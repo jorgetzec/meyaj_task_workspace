@@ -88,7 +88,7 @@ export interface HashtagGroup {
   items: HashtagItem[];
 }
 
-export type FilePickerMode = "open" | "save" | "theme";
+export type FilePickerMode = "open" | "save" | "theme" | "theme-save";
 export type ExportScope = "active-panel" | "all-panels";
 
 /** Request that opens the in-app file picker instead of the native dialog. */
@@ -97,4 +97,5 @@ export interface FilePickerRequest {
   extensions?: string[];
   defaultName?: string;
   exportScope?: ExportScope;
+  contents?: string;
 }

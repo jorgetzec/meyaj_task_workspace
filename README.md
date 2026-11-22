@@ -78,8 +78,10 @@ From the repository root:
 
 ```sh
 npm ci
-npm run tauri dev
+npm run tauri:dev
 ```
+
+Development uses the separate `com.meyaj.app.dev` profile, including its own local database at `%APPDATA%\com.meyaj.app.dev\meyaj.db` on Windows. It never reads or writes the installed application's `com.meyaj.app` data.
 
 The first launch defaults to Spanish. Open the gear button → **Configuración → Idioma → Inglés** to switch to English. The preference is saved locally.
 
@@ -207,7 +209,7 @@ Automatic cloud synchronization, multi-user collaboration, recurring tasks, remi
 
 | Command, from the repository root | Purpose |
 | --- | --- |
-| `npm run tauri dev` | Run the desktop app with the frontend development server. |
+| `npm run tauri:dev` | Run the desktop app with the frontend development server and isolated development database. |
 | `npm run build` | Type-check and build the frontend. |
 | `npm test` | Run the Node-based frontend utility and store tests. |
 | `cargo test --locked --manifest-path src-tauri/Cargo.toml` | Run Rust and in-memory SQLite tests, including the public import examples. |

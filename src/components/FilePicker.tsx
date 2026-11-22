@@ -128,7 +128,7 @@ export default function FilePicker() {
 
   if (!request) return null;
 
-  const isSave = request.mode === "save";
+  const isSave = request.mode === "save" || request.mode === "theme-save";
 
   const confirm = async () => {
     setError(null);
@@ -144,6 +144,14 @@ export default function FilePicker() {
           extension && !name.toLowerCase().endsWith(`.${extension.toLowerCase()}`)
             ? `${name}.${extension}`
             : name;
+        if (request.mode === "theme-save") {
+          if (!request.contents) throw new Error(t("settings.invalidTheme"));
+          setBusy(true);
+          await api.writeTextFile(joinPath(dir, target), request.contents);
+          close();
+          return;
+        }
+
         const panelId = useAppStore.getState().activePanelId;
         if (request.exportScope !== "all-panels" && !panelId) {
           setError(t("export.noPanel"));
@@ -176,11 +184,13 @@ export default function FilePicker() {
     }
   };
 
-  const title = isSave
-    ? t("picker.saveTitle")
-    : request.mode === "theme"
-      ? t("picker.themeTitle")
-      : t("picker.openTitle");
+  const title = request.mode === "theme-save"
+    ? t("picker.themeSaveTitle")
+    : isSave
+      ? t("picker.saveTitle")
+      : request.mode === "theme"
+        ? t("picker.themeTitle")
+        : t("picker.openTitle");
 
   const up = parentOf(dir);
 

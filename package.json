@@ -12,6 +12,7 @@
     "test": "node --experimental-strip-types --test tests/*.test.mjs",
     "preview": "vite preview",
     "tauri": "tauri",
+    "tauri:dev": "tauri dev --config src-tauri/tauri.dev.conf.json",
     "licenses:third-party": "node scripts/generate-third-party-notices.mjs",
     "release:windows": "npm run licenses:third-party && tauri build --bundles nsis --ci"
   },
