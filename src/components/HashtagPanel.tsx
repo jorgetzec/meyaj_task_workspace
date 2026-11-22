@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, PanelRight } from "lucide-react";
 import { useAppStore } from "../stores/useAppStore";
 import { useT } from "../i18n";
 import type { HashtagItem } from "../types";
@@ -16,6 +16,7 @@ export default function HashtagPanel() {
   const classifiers = useAppStore((s) => s.classifiers);
   const theme = useAppStore((s) => s.theme);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const [panelCollapsed, setPanelCollapsed] = useState(false);
 
   const [width, setWidth] = useState<number>(() => {
     const saved = localStorage.getItem("meyaj-hashtag-width");
@@ -72,6 +73,22 @@ export default function HashtagPanel() {
     revealTask(item.taskId);
   };
 
+  if (panelCollapsed) {
+    return (
+      <aside className="flex w-10 shrink-0 flex-col items-center border-l border-[var(--border)] bg-[var(--bg-elevated)] py-2">
+        <button
+          type="button"
+          onClick={() => setPanelCollapsed(false)}
+          title={t("hashtag.expand")}
+          aria-label={t("hashtag.expand")}
+          className="flex h-7 w-7 items-center justify-center rounded text-[var(--text-dim)] hover:bg-[var(--bg-hover)] hover:text-[var(--text)]"
+        >
+          <PanelRight size={15} aria-hidden="true" />
+        </button>
+      </aside>
+    );
+  }
+
   return (
     <aside
       className="relative flex shrink-0 flex-col border-l border-[var(--border)] bg-[var(--bg-elevated)]"
@@ -92,8 +109,8 @@ export default function HashtagPanel() {
       />
 
       <div className="border-b border-[var(--border)] px-3 py-2.5">
-        <div className="flex items-baseline justify-between gap-2">
-          <span className="text-[0.625rem] font-semibold uppercase tracking-[0.14em] text-[var(--text-faint)]">
+        <div className="flex items-baseline gap-2">
+          <span className="flex-1 text-[0.625rem] font-semibold uppercase tracking-[0.14em] text-[var(--text-faint)]">
             {t("hashtag.title")}
           </span>
           {hashtagGroups.length > 0 && (
@@ -101,6 +118,15 @@ export default function HashtagPanel() {
               {hashtagGroups.length} · {hashtagGroups.reduce((total, group) => total + group.count, 0)}
             </span>
           )}
+          <button
+            type="button"
+            onClick={() => setPanelCollapsed(true)}
+            title={t("hashtag.collapse")}
+            aria-label={t("hashtag.collapse")}
+            className="flex h-6 w-6 items-center justify-center rounded text-[var(--text-faint)] hover:bg-[var(--bg-hover)] hover:text-[var(--text)]"
+          >
+            <PanelRight size={13} aria-hidden="true" />
+          </button>
         </div>
       </div>
 

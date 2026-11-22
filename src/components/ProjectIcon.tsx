@@ -1,7 +1,9 @@
 import {
   Folder, Code, Terminal, Laptop, Database, Bug, FlaskConical, Book, Briefcase, Leaf,
   Star, Target, Rocket, Heart, Palette, Camera, Music, Globe, Calendar, Wallet, Home,
-  Coffee, GraduationCap, Lightbulb, Wrench, PenTool,
+  Coffee, GraduationCap, Lightbulb, Wrench, PenTool, School, BookOpenCheck,
+  Handshake, HeartHandshake, Megaphone, UsersRound, Box, Cuboid, Layers3, Blocks,
+  Atom, Landmark, Flower2, Apple, Citrus, Cherry, Sprout, Trees, Wheat,
   type LucideProps,
 } from "lucide-react";
 
@@ -32,6 +34,25 @@ export const PROJECT_ICONS = {
   lightbulb: Lightbulb,
   wrench: Wrench,
   pen: PenTool,
+  school: School,
+  "book-open-check": BookOpenCheck,
+  handshake: Handshake,
+  "heart-handshake": HeartHandshake,
+  megaphone: Megaphone,
+  users: UsersRound,
+  box: Box,
+  cuboid: Cuboid,
+  layers: Layers3,
+  blocks: Blocks,
+  atom: Atom,
+  landmark: Landmark,
+  flower: Flower2,
+  apple: Apple,
+  citrus: Citrus,
+  cherry: Cherry,
+  sprout: Sprout,
+  trees: Trees,
+  wheat: Wheat,
 } as const;
 
 export type ProjectIconId = keyof typeof PROJECT_ICONS;
