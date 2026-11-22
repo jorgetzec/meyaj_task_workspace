@@ -107,6 +107,8 @@ const es: Dict = {
   "gantt.today": "Hoy",
   "gantt.open": "abierta",
   "gantt.unassigned": "Sin proyecto",
+  "classifiers.empty": "Sin clasificadores. Añade uno para etiquetar tareas.",
+  "central.manageClassifiers": "Clasificadores",
   "hashtag.resize": "Ajustar ancho del panel de pendientes clave",
 
   "history.completed": "completadas",
@@ -331,6 +333,8 @@ const en: Dict = {
   "gantt.today": "Today",
   "gantt.open": "open",
   "gantt.unassigned": "No project",
+  "classifiers.empty": "No classifiers. Add one to label tasks.",
+  "central.manageClassifiers": "Classifiers",
   "hashtag.resize": "Resize the key tasks panel",
 
   "history.completed": "completed",

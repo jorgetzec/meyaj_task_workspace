@@ -1,5 +1,5 @@
 import { X } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { isTauri } from "@tauri-apps/api/core";
 import { useAppStore } from "../stores/useAppStore";
 import { useT } from "../i18n";
@@ -95,27 +95,15 @@ export default function SettingsModal() {
   const setMonoFont = useAppStore((s) => s.setMonoFont);
   const sansFont = useAppStore((s) => s.sansFont);
   const setSansFont = useAppStore((s) => s.setSansFont);
-  const classifiers = useAppStore((s) => s.classifiers);
-  const createClassifier = useAppStore((s) => s.createClassifier);
-  const deleteClassifier = useAppStore((s) => s.deleteClassifier);
   const customTheme = useAppStore((s) => s.customTheme);
   const importTheme = useAppStore((s) => s.importTheme);
   const clearCustomTheme = useAppStore((s) => s.clearCustomTheme);
   const setError = useAppStore((s) => s.setError);
   const setFilePicker = useAppStore((s) => s.setFilePicker);
 
-  const [newClassifier, setNewClassifier] = useState("");
   const themeFileInput = useRef<HTMLInputElement>(null);
-  const firstThemeRef = useRef<HTMLButtonElement>(null);
 
   if (!open) return null;
-
-  const addClassifier = async () => {
-    const name = newClassifier.trim().toUpperCase();
-    if (!name) return;
-    await createClassifier(name);
-    setNewClassifier("");
-  };
 
   const importThemeContent = (content: string) => {
     const parsed = parseTheme(JSON.parse(content));
@@ -144,7 +132,6 @@ export default function SettingsModal() {
       onClose={() => setOpen(false)}
       label={t("settings.title")}
       className="flex w-[460px] max-w-full flex-col"
-      initialFocusRef={firstThemeRef}
     >
         <header className="flex shrink-0 items-center justify-between border-b border-[var(--border)] px-4 py-3">
           <span className="text-sm font-semibold text-[var(--text)]">{t("settings.title")}</span>
@@ -163,36 +150,15 @@ export default function SettingsModal() {
             <div className="mb-2 text-[0.6875rem] font-semibold uppercase tracking-[0.12em] text-[var(--text-faint)]">
               {t("settings.theme")}
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              {THEME_OPTIONS.map((opt, index) => (
-                <button
-                  key={opt.value}
-                  ref={index === 0 ? firstThemeRef : undefined}
-                  type="button"
-                  onClick={() => setTheme(opt.value)}
-                  className={`rounded border px-3 py-2.5 text-sm transition ${
-                    theme === opt.value
-                      ? "border-[var(--accent)] bg-[var(--bg-active)] text-[var(--text)]"
-                      : "border-[var(--border-strong)] text-[var(--text-dim)] hover:bg-[var(--bg-hover)]"
-                  }`}
-                >
-                  {t(opt.labelKey)}
-                </button>
-              ))}
-              {customTheme && (
-                <button
-                  type="button"
-                  onClick={() => importTheme(customTheme.name, customTheme.vars)}
-                  className={`rounded border px-3 py-2.5 text-sm transition ${
-                    theme === "custom"
-                      ? "border-[var(--accent)] bg-[var(--bg-active)] text-[var(--text)]"
-                      : "border-[var(--border-strong)] text-[var(--text-dim)] hover:bg-[var(--bg-hover)]"
-                  }`}
-                >
-                  {customTheme.name}
-                </button>
-              )}
-            </div>
+            <ThemedSelect
+              value={theme}
+              onChange={(value) => setTheme(value as Theme)}
+              options={[
+                ...THEME_OPTIONS.map((opt) => ({ value: opt.value, label: t(opt.labelKey) })),
+                ...(customTheme ? [{ value: "custom", label: customTheme.name }] : []),
+              ]}
+              label={t("settings.theme")}
+            />
             <input
               ref={themeFileInput}
               type="file"
@@ -258,67 +224,12 @@ export default function SettingsModal() {
             <div className="mb-2 text-[0.6875rem] font-semibold uppercase tracking-[0.12em] text-[var(--text-faint)]">
               {t("settings.language")}
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              {LANG_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setLanguage(opt.value)}
-                  className={`rounded border px-3 py-2.5 text-sm transition ${
-                    language === opt.value
-                      ? "border-[var(--accent)] bg-[var(--bg-active)] text-[var(--text)]"
-                      : "border-[var(--border-strong)] text-[var(--text-dim)] hover:bg-[var(--bg-hover)]"
-                  }`}
-                >
-                  {t(opt.labelKey)}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <div className="mb-2 text-[0.6875rem] font-semibold uppercase tracking-[0.12em] text-[var(--text-faint)]">
-              {t("settings.classifiers")}
-            </div>
-            <div className="mb-2 flex flex-wrap gap-1.5">
-              {classifiers.map((c) => (
-                <span
-                  key={c.id}
-                  className="mono inline-flex items-center gap-1 rounded bg-[var(--bg-active)] px-2 py-1 text-[0.75rem] text-[var(--accent)]"
-                >
-                  {c.name}
-                  <button
-                    type="button"
-                    onClick={() => deleteClassifier(c.name)}
-                    title={t("task.delete")}
-                    aria-label={`${t("task.delete")}: ${c.name}`}
-                    className="text-[var(--text-faint)] hover:text-[var(--danger)]"
-                  >
-                    <X size={12} aria-hidden="true" />
-                  </button>
-                </span>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <input
-                value={newClassifier}
-                onChange={(e) => setNewClassifier(e.target.value.toUpperCase())}
-                onKeyDown={(e) => e.key === "Enter" && addClassifier()}
-                aria-label={t("settings.classifierPlaceholder")}
-                autoComplete="off"
-                spellCheck={false}
-                placeholder={t("settings.classifierPlaceholder")}
-                className="mono flex-1 rounded border border-[var(--border-strong)] bg-[var(--bg)] px-2.5 py-1.5 text-[0.75rem] uppercase text-[var(--text)] outline-none focus:border-[var(--accent)]"
-              />
-              <button
-                type="button"
-                onClick={addClassifier}
-                aria-label={t("settings.addClassifier")}
-                className="rounded bg-[var(--accent)] px-3 py-1.5 text-[0.75rem] font-medium text-white"
-              >
-                +
-              </button>
-            </div>
+            <ThemedSelect
+              value={language}
+              onChange={(value) => setLanguage(value as Lang)}
+              options={LANG_OPTIONS.map((opt) => ({ value: opt.value, label: t(opt.labelKey) }))}
+              label={t("settings.language")}
+            />
           </div>
 
           <p className="text-[0.6875rem] leading-relaxed text-[var(--text-faint)]">

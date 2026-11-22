@@ -6,6 +6,7 @@ import CentralPanel from "./components/CentralPanel";
 import HashtagPanel from "./components/HashtagPanel";
 import StatusBar from "./components/StatusBar";
 import SettingsModal from "./components/SettingsModal";
+import ClassifierDialog from "./components/ClassifierDialog";
 import FilePicker from "./components/FilePicker";
 import ProjectFormModal from "./components/ProjectFormModal";
 import SearchModal from "./components/SearchModal";
@@ -62,6 +63,7 @@ export default function App() {
       </div>
       <StatusBar />
       <SettingsModal />
+      <ClassifierDialog />
       <FilePicker />
       <ProjectFormModal />
       <SearchModal />

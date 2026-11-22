@@ -42,11 +42,13 @@ interface AppStore {
   settingsOpen: boolean;
   projectFormOpen: boolean;
   searchOpen: boolean;
+  classifiersOpen: boolean;
   filePicker: FilePickerRequest | null;
 
   init: () => Promise<void>;
   setError: (error: string | null) => void;
   setSettingsOpen: (open: boolean) => void;
+  setClassifiersOpen: (open: boolean) => void;
   setProjectFormOpen: (open: boolean) => void;
   setSearchOpen: (open: boolean) => void;
   setFilePicker: (request: FilePickerRequest | null) => void;
@@ -212,6 +214,7 @@ export const useAppStore = create<AppStore>((set, get) => {
     settingsOpen: false,
     projectFormOpen: false,
     searchOpen: false,
+    classifiersOpen: false,
     filePicker: null,
 
     init: async () => {
@@ -318,6 +321,7 @@ export const useAppStore = create<AppStore>((set, get) => {
     },
     setError: (error) => set({ error }),
     setSettingsOpen: (open) => set({ settingsOpen: open }),
+    setClassifiersOpen: (open) => set({ classifiersOpen: open }),
     setFilePicker: (request) => set({ filePicker: request }),
     setProjectFormOpen: (open) => set({ projectFormOpen: open }),
     setSearchOpen: (open) => set({ searchOpen: open }),

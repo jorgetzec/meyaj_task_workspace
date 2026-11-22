@@ -7,7 +7,7 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { Plus } from "lucide-react";
+import { Plus, Tags } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { useAppStore } from "../stores/useAppStore";
 import { useT } from "../i18n";
@@ -31,6 +31,7 @@ export default function CentralPanel() {
   const reorderTaskSiblings = useAppStore((s) => s.reorderTaskSiblings);
   const moveTask = useAppStore((s) => s.moveTask);
   const setProjectFormOpen = useAppStore((s) => s.setProjectFormOpen);
+  const setClassifiersOpen = useAppStore((s) => s.setClassifiersOpen);
   const reorderProjects = useAppStore((s) => s.reorderProjects);
   const language = useAppStore((s) => s.language);
   const lastCreatedTaskId = useAppStore((s) => s.lastCreatedTaskId);
@@ -158,8 +159,18 @@ export default function CentralPanel() {
         )}
 
         <button
+          onClick={() => setClassifiersOpen(true)}
+          title={t("central.manageClassifiers")}
+          aria-label={t("central.manageClassifiers")}
+          className="ml-auto flex items-center gap-1.5 rounded px-2 py-1 text-[0.8125rem] text-[var(--text-dim)] transition hover:bg-[var(--bg-hover)] hover:text-[var(--text)]"
+        >
+          <Tags size={14} />
+          <span className="hidden md:inline">{t("central.manageClassifiers")}</span>
+        </button>
+
+        <button
           onClick={() => setProjectFormOpen(true)}
-          className="ml-auto flex items-center gap-1.5 rounded px-2.5 py-1 text-[0.8125rem] text-[var(--text-dim)] transition hover:bg-[var(--bg-hover)] hover:text-[var(--text)]"
+          className="flex items-center gap-1.5 rounded px-2.5 py-1 text-[0.8125rem] text-[var(--text-dim)] transition hover:bg-[var(--bg-hover)] hover:text-[var(--text)]"
         >
           <Plus size={14} />
           {t("central.newProject")}
