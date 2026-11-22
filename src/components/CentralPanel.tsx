@@ -27,7 +27,7 @@ export default function CentralPanel() {
   const currentView = useAppStore((s) => s.currentView);
   const projectFilter = useAppStore((s) => s.projectFilter);
   const setProjectFilter = useAppStore((s) => s.setProjectFilter);
-  const reorderProjectTasks = useAppStore((s) => s.reorderProjectTasks);
+  const reorderTaskSiblings = useAppStore((s) => s.reorderTaskSiblings);
   const moveTask = useAppStore((s) => s.moveTask);
   const setProjectFormOpen = useAppStore((s) => s.setProjectFormOpen);
   const reorderProjects = useAppStore((s) => s.reorderProjects);
@@ -76,18 +76,27 @@ export default function CentralPanel() {
       return;
     }
 
-    if (activeTask.parentTaskId || overTask.parentTaskId) return;
+    // Only reorder within the same parent scope (or among project roots).
+    if (activeTask.parentTaskId !== overTask.parentTaskId) return;
 
-    const topIds = tasks
-      .filter((t) => t.projectId === activeTask.projectId && !t.parentTaskId)
+    const siblingIds = tasks
+      .filter(
+        (t) =>
+          t.projectId === activeTask.projectId &&
+          t.parentTaskId === activeTask.parentTaskId,
+      )
       .sort((a, b) => a.sortOrder - b.sortOrder)
       .map((t) => t.id);
 
-    const oldIndex = topIds.indexOf(active.id as string);
-    const newIndex = topIds.indexOf(over.id as string);
+    const oldIndex = siblingIds.indexOf(active.id as string);
+    const newIndex = siblingIds.indexOf(over.id as string);
     if (oldIndex < 0 || newIndex < 0) return;
 
-    reorderProjectTasks(activeTask.projectId!, arrayMove(topIds, oldIndex, newIndex));
+    reorderTaskSiblings(
+      activeTask.projectId!,
+      activeTask.parentTaskId,
+      arrayMove(siblingIds, oldIndex, newIndex),
+    );
   };
 
   const grouped = groupTasksByProject(tasks, projects);

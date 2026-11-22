@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { useSortable } from "@dnd-kit/sortable";
+import { useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Plus, Trash2, CornerUpLeft, FolderInput } from "lucide-react";
 import { useAppStore } from "../stores/useAppStore";
@@ -463,23 +463,22 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
           </div>
         </Dialog>
       )}
-
-      {node.children.map((child) => (
-        <TaskItem
-          key={child.task.id}
-          node={child}
-          depth={depth + 1}
-        />
-      ))}
     </div>
   );
 }
 
 export function TaskItem({ node, depth }: Omit<RowProps, "dragProps">) {
-  return <TaskRow node={node} depth={depth} />;
+  return (
+    <>
+      <TaskRow node={node} depth={depth} />
+      {node.children.map((child) => (
+        <TaskItem key={child.task.id} node={child} depth={depth + 1} />
+      ))}
+    </>
+  );
 }
 
-export function SortableTaskItem({ node }: { node: TaskNode }) {
+export function SortableTaskItem({ node, depth = 0 }: { node: TaskNode; depth?: number }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: node.task.id });
 
@@ -491,5 +490,19 @@ export function SortableTaskItem({ node }: { node: TaskNode }) {
     isDragging,
   };
 
-  return <TaskRow node={node} depth={0} dragProps={dragProps} />;
+  return (
+    <>
+      <TaskRow node={node} depth={depth} dragProps={dragProps} />
+      {node.children.length > 0 && (
+        <SortableContext
+          items={node.children.map((child) => child.task.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          {node.children.map((child) => (
+            <SortableTaskItem key={child.task.id} node={child} depth={depth + 1} />
+          ))}
+        </SortableContext>
+      )}
+    </>
+  );
 }

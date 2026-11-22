@@ -1309,7 +1309,61 @@ pub async fn reorder_project_tasks(
     build_panel_state(pool, &panel_id).await.map_err(err)
 }
 
-/// Reads a UTF-8 text file chosen in the file dialog.
+/// Reorders siblings within one parent scope (or the project's roots).
+#[tauri::command]
+pub async fn reorder_task_siblings(
+    project_id: String,
+    parent_task_id: Option<String>,
+    ordered_ids: Vec<String>,
+    state: State<'_, AppState>,
+) -> CmdResult<PanelState> {
+    reorder_task_siblings_inner(
+        &state.pool,
+        &project_id,
+        parent_task_id.as_deref(),
+        &ordered_ids,
+    )
+    .await
+}
+
+async fn reorder_task_siblings_inner(
+    pool: &SqlitePool,
+    project_id: &str,
+    parent_task_id: Option<&str>,
+    ordered_ids: &[String],
+) -> CmdResult<PanelState> {
+    let panel_id = panel_id_for_project(pool, project_id).await.map_err(err)?;
+
+    for (idx, task_id) in ordered_ids.iter().enumerate() {
+        match parent_task_id {
+            Some(parent) => {
+                sqlx::query(
+                    "UPDATE task SET sort_order = ? WHERE id = ? AND project_id = ? AND parent_task_id = ?",
+                )
+                .bind(idx as i64)
+                .bind(task_id)
+                .bind(project_id)
+                .bind(parent)
+                .execute(pool)
+                .await
+                .map_err(err)?;
+            }
+            None => {
+                sqlx::query(
+                    "UPDATE task SET sort_order = ? WHERE id = ? AND project_id = ? AND parent_task_id IS NULL",
+                )
+                .bind(idx as i64)
+                .bind(task_id)
+                .bind(project_id)
+                .execute(pool)
+                .await
+                .map_err(err)?;
+            }
+        }
+    }
+
+    build_panel_state(pool, &panel_id).await.map_err(err)
+}
 ///
 /// Reading in the backend avoids depending on the fs plugin scope for paths
 /// the user picks outside the application directories.
@@ -1632,6 +1686,44 @@ mod tests {
         .await
         .unwrap();
         assert_eq!(kids.first(), Some(&child_id));
+    }
+
+    #[tokio::test]
+    async fn reorder_task_siblings_reorders_within_the_scope() {
+        let pool = setup().await;
+
+        task(&pool, "root", "p", None).await;
+        task(&pool, "a", "p", Some("root")).await;
+        task(&pool, "b", "p", Some("root")).await;
+        task(&pool, "c", "p", Some("root")).await;
+
+        let ids = ["c".to_string(), "a".to_string(), "b".to_string()];
+        reorder_task_siblings_inner(&pool, "p", Some("root"), &ids)
+            .await
+            .unwrap();
+
+        let order: Vec<String> = sqlx::query_scalar(
+            "SELECT id FROM task WHERE parent_task_id = 'root' ORDER BY sort_order, created_at",
+        )
+        .fetch_all(&pool)
+        .await
+        .unwrap();
+        assert_eq!(order, vec!["c", "a", "b"]);
+
+        // Root scope in another project reorders independently.
+        task(&pool, "q1", "q", None).await;
+        task(&pool, "q2", "q", None).await;
+        let roots = ["q2".to_string(), "q1".to_string()];
+        reorder_task_siblings_inner(&pool, "q", None, &roots)
+            .await
+            .unwrap();
+        let root_order: Vec<String> = sqlx::query_scalar(
+            "SELECT id FROM task WHERE project_id = 'q' AND parent_task_id IS NULL ORDER BY sort_order, created_at",
+        )
+        .fetch_all(&pool)
+        .await
+        .unwrap();
+        assert_eq!(root_order, vec!["q2", "q1"]);
     }
 
     #[tokio::test]

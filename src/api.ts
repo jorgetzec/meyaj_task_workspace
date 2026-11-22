@@ -102,6 +102,12 @@ export const api = {
   reorderProjectTasks: (projectId: string, orderedIds: string[]) =>
     invoke<PanelState>("reorder_project_tasks", { projectId, orderedIds }),
 
+  reorderTaskSiblings: (
+    projectId: string,
+    parentTaskId: string | null,
+    orderedIds: string[],
+  ) => invoke<PanelState>("reorder_task_siblings", { projectId, parentTaskId, orderedIds }),
+
   reorderProjects: (panelId: string, orderedIds: string[]) =>
     invoke<PanelState>("reorder_projects", { panelId, orderedIds }),
 

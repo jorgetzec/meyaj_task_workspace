@@ -61,6 +61,7 @@ pub fn run() {
             commands::set_task_parent,
             commands::move_task,
             commands::reorder_project_tasks,
+            commands::reorder_task_siblings,
             commands::reorder_projects,
             commands::set_panel_archived,
             commands::restore_task,

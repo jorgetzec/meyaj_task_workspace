@@ -80,6 +80,7 @@ interface AppStore {
   setTaskParent: (taskId: string, parentTaskId: string | null) => Promise<void>;
   moveTask: (taskId: string, projectId: string) => Promise<void>;
   reorderProjectTasks: (projectId: string, orderedIds: string[]) => Promise<void>;
+  reorderTaskSiblings: (projectId: string, parentTaskId: string | null, orderedIds: string[]) => Promise<void>;
   reorderProjects: (orderedIds: string[]) => Promise<void>;
   importMarkdown: (markdown: string) => Promise<void>;
   archivePanel: (panelId: string, archived: boolean) => Promise<void>;
@@ -585,6 +586,15 @@ export const useAppStore = create<AppStore>((set, get) => {
     reorderProjectTasks: async (projectId, orderedIds) => {
       try {
         const state = await api.reorderProjectTasks(projectId, orderedIds);
+        applyState(state);
+      } catch (e) {
+        set({ error: String(e) });
+      }
+    },
+
+    reorderTaskSiblings: async (projectId, parentTaskId, orderedIds) => {
+      try {
+        const state = await api.reorderTaskSiblings(projectId, parentTaskId, orderedIds);
         applyState(state);
       } catch (e) {
         set({ error: String(e) });
