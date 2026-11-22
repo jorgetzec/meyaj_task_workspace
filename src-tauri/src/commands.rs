@@ -701,7 +701,7 @@ async fn create_task_inner(pool: &SqlitePool, input: CreateTaskInput) -> CmdResu
 
     let sort_order: i64 = match &input.parent_task_id {
         Some(parent) => sqlx::query_scalar(
-            "SELECT COALESCE(MAX(sort_order), -1) + 1 FROM task WHERE project_id = ? AND parent_task_id = ?",
+            "SELECT COALESCE(MIN(sort_order), 1) - 1 FROM task WHERE project_id = ? AND parent_task_id = ?",
         )
         .bind(&project_id)
         .bind(parent)
@@ -709,7 +709,7 @@ async fn create_task_inner(pool: &SqlitePool, input: CreateTaskInput) -> CmdResu
         .await
         .map_err(err)?,
         None => sqlx::query_scalar(
-            "SELECT COALESCE(MAX(sort_order), -1) + 1 FROM task WHERE project_id = ? AND parent_task_id IS NULL",
+            "SELECT COALESCE(MIN(sort_order), 1) - 1 FROM task WHERE project_id = ? AND parent_task_id IS NULL",
         )
         .bind(&project_id)
         .fetch_one(&mut *tx)
@@ -1596,6 +1596,42 @@ mod tests {
 
     async fn count(pool: &SqlitePool, query: &str) -> i64 {
         sqlx::query_scalar(query).fetch_one(pool).await.unwrap()
+    }
+
+    #[tokio::test]
+    async fn new_tasks_insert_at_the_top_of_their_scope() {
+        let pool = setup().await;
+
+        // Root scope: two existing roots, both at sort_order 0.
+        task(&pool, "root-a", "p", None).await;
+        task(&pool, "root-b", "p", None).await;
+        let created = create_task_inner(&pool, input("a", Some("p"), None))
+            .await
+            .unwrap();
+        let root_id = created.created_task_id.clone().unwrap();
+        let roots: Vec<String> = sqlx::query_scalar(
+            "SELECT id FROM task WHERE project_id = 'p' AND parent_task_id IS NULL ORDER BY sort_order, created_at",
+        )
+        .fetch_all(&pool)
+        .await
+        .unwrap();
+        assert_eq!(roots.first(), Some(&root_id));
+
+        // Child scope: the new child precedes its siblings under the parent.
+        task(&pool, "parent", "p", None).await;
+        task(&pool, "kid-a", "p", Some("parent")).await;
+        task(&pool, "kid-b", "p", Some("parent")).await;
+        let child = create_task_inner(&pool, input("a", Some("p"), Some("parent")))
+            .await
+            .unwrap();
+        let child_id = child.created_task_id.clone().unwrap();
+        let kids: Vec<String> = sqlx::query_scalar(
+            "SELECT id FROM task WHERE parent_task_id = 'parent' ORDER BY sort_order, created_at",
+        )
+        .fetch_all(&pool)
+        .await
+        .unwrap();
+        assert_eq!(kids.first(), Some(&child_id));
     }
 
     #[tokio::test]
