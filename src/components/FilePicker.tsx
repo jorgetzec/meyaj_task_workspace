@@ -145,12 +145,15 @@ export default function FilePicker() {
             ? `${name}.${extension}`
             : name;
         const panelId = useAppStore.getState().activePanelId;
-        if (!panelId) {
-          setError(t("title.importNoPanel"));
+        if (request.exportScope !== "all-panels" && !panelId) {
+          setError(t("export.noPanel"));
           return;
         }
         setBusy(true);
-        const markdown = await api.exportMarkdown(panelId);
+        const markdown =
+          request.exportScope === "all-panels"
+            ? await api.exportAllMarkdown()
+            : await api.exportMarkdown(panelId!);
         await api.writeTextFile(joinPath(dir, target), markdown);
         close();
         return;

@@ -1217,28 +1217,21 @@ pub async fn restore_task(history_id: String, state: State<'_, AppState>) -> Cmd
     build_panel_state(pool, &panel_id).await.map_err(err)
 }
 
-/// Exports a panel (active tasks + history) as a Markdown string.
-#[tauri::command]
-pub async fn export_markdown(panel_id: String, state: State<'_, AppState>) -> CmdResult<String> {
-    let pool = &state.pool;
-
-    let title: String = sqlx::query_scalar("SELECT title FROM panel WHERE id = ?")
-        .bind(&panel_id)
-        .fetch_one(pool)
-        .await
-        .map_err(err)?;
-
-    let projects = fetch_projects(pool, &panel_id).await.map_err(err)?;
-
+/// Renders one panel's active tasks and history below a supplied heading level.
+async fn export_panel_sections(
+    pool: &SqlitePool,
+    panel_id: &str,
+    section_level: usize,
+) -> Result<String, sqlx::Error> {
+    let projects = fetch_projects(pool, panel_id).await?;
     let rows = sqlx::query(
         "SELECT id, content, created_at, project_id, classifier, parent_task_id FROM task \
          WHERE project_id IN (SELECT id FROM project WHERE panel_id = ?) AND completed = 0 \
          ORDER BY project_id, sort_order",
     )
-    .bind(&panel_id)
+    .bind(panel_id)
     .fetch_all(pool)
-    .await
-    .map_err(err)?;
+    .await?;
 
     let mut children: HashMap<String, Vec<(String, String, String, Option<String>)>> =
         HashMap::new();
@@ -1251,8 +1244,8 @@ pub async fn export_markdown(panel_id: String, state: State<'_, AppState>) -> Cm
         let classifier: Option<String> = r.get("classifier");
         let parent: Option<String> = r.get("parent_task_id");
         match parent {
-            Some(p) => children
-                .entry(p)
+            Some(parent_id) => children
+                .entry(parent_id)
                 .or_default()
                 .push((id, content, created_at, classifier)),
             None => roots.push((id, content, created_at, project_id, classifier)),
@@ -1263,23 +1256,21 @@ pub async fn export_markdown(panel_id: String, state: State<'_, AppState>) -> Cm
         "SELECT classifier, snapshot_content, created_at, completed_at FROM history_entry \
          WHERE panel_id = ? ORDER BY completed_at DESC, created_at DESC",
     )
-    .bind(&panel_id)
+    .bind(panel_id)
     .fetch_all(pool)
-    .await
-    .map_err(err)?;
+    .await?;
 
+    let heading = "#".repeat(section_level);
     let mut out = String::new();
-    out.push_str(&format!("# {}\n", title));
-
     for proj in &projects {
-        out.push_str(&format!("\n## {}\n", proj.label));
-        for root in roots.iter().filter(|r| r.3 == proj.id) {
+        out.push_str(&format!("\n{} {}\n", heading, proj.label));
+        for root in roots.iter().filter(|task| task.3 == proj.id) {
             emit_task(&mut out, &root.0, &root.1, &root.2, &root.4, &children, 0);
         }
     }
 
     if !history_rows.is_empty() {
-        out.push_str("\n## Historial\n");
+        out.push_str(&format!("\n{} Historial\n", heading));
         for h in history_rows {
             let classifier: Option<String> = h.get("classifier");
             let content: String = h.get("snapshot_content");
@@ -1296,6 +1287,39 @@ pub async fn export_markdown(panel_id: String, state: State<'_, AppState>) -> Cm
     }
 
     Ok(out)
+}
+
+/// Exports one panel (active tasks + history) as Markdown.
+#[tauri::command]
+pub async fn export_markdown(panel_id: String, state: State<'_, AppState>) -> CmdResult<String> {
+    let pool = &state.pool;
+    let title: String = sqlx::query_scalar("SELECT title FROM panel WHERE id = ?")
+        .bind(&panel_id)
+        .fetch_one(pool)
+        .await
+        .map_err(err)?;
+    let sections = export_panel_sections(pool, &panel_id, 2)
+        .await
+        .map_err(err)?;
+    Ok(format!("# {}\n{}", title, sections))
+}
+
+async fn export_all_panels_markdown(pool: &SqlitePool) -> Result<String, sqlx::Error> {
+    let panels = fetch_panels(pool).await?;
+    let mut out = String::from("# Meyaj workspace\n");
+
+    for panel in panels.into_iter().filter(|panel| !panel.archived) {
+        out.push_str(&format!("\n## {}\n", panel.title));
+        out.push_str(&export_panel_sections(pool, &panel.id, 3).await?);
+    }
+
+    Ok(out)
+}
+
+/// Exports all non-archived panels, retaining their panel and project hierarchy.
+#[tauri::command]
+pub async fn export_all_markdown(state: State<'_, AppState>) -> CmdResult<String> {
+    export_all_panels_markdown(&state.pool).await.map_err(err)
 }
 
 fn date10(s: &str) -> String {
@@ -1640,6 +1664,25 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(projects, 0);
+    }
+
+    #[tokio::test]
+    async fn workspace_export_includes_active_panels_in_hierarchy() {
+        let pool = setup().await;
+        task(&pool, "origin-task", "p", None).await;
+        task(&pool, "destination-task", "r", None).await;
+        task(&pool, "archived-task", "old", None).await;
+
+        let markdown = export_all_panels_markdown(&pool).await.unwrap();
+
+        assert!(markdown.starts_with("# Meyaj workspace\n"));
+        assert!(markdown.contains("## Origen\n\n### Proyecto\n"));
+        assert!(
+            markdown
+                .contains("### Destino\n- [ ] 2026-01-01 | **** | destination-task #regression")
+        );
+        assert!(!markdown.contains("## Archivo"));
+        assert!(!markdown.contains("archived-task"));
     }
 
     #[tokio::test]

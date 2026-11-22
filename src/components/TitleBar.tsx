@@ -34,6 +34,22 @@ function rememberDir(path: string) {
   }
 }
 
+function exportDate(): string {
+  const now = new Date();
+  return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("");
+}
+
+function exportFileStem(name: string): string {
+  const cleaned = name
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[<>:"/\\|?*\x00-\x1f]/g, "")
+    .trim()
+    .replace(/\s+/g, "_")
+    .replace(/[. ]+$/g, "");
+  return cleaned || "panel";
+}
+
 export default function TitleBar() {
   const t = useT();
   const theme = useAppStore((s) => s.theme);
@@ -44,8 +60,10 @@ export default function TitleBar() {
   const setSearchOpen = useAppStore((s) => s.setSearchOpen);
   const setFilePicker = useAppStore((s) => s.setFilePicker);
   const activePanelId = useAppStore((s) => s.activePanelId);
+  const panels = useAppStore((s) => s.panels);
 
   const [maximized, setMaximized] = useState(false);
+  const [exportMenuOpen, setExportMenuOpen] = useState(false);
 
   useEffect(() => {
     appWindow.isMaximized().then(setMaximized).catch(() => {});
@@ -94,12 +112,29 @@ export default function TitleBar() {
     setFilePicker({ mode: "open", extensions: ["md", "markdown", "txt"] });
   };
 
-  const handleExport = () => {
-    if (!activePanelId) {
-      setError(t("export.noPanel"));
-      return;
+  const startExport = (scope: "active-panel" | "all-panels") => {
+    const date = exportDate();
+    if (scope === "active-panel") {
+      const panel = panels.find((item) => item.id === activePanelId);
+      if (!panel) {
+        setError(t("export.noPanel"));
+        return;
+      }
+      setFilePicker({
+        mode: "save",
+        extensions: ["md"],
+        defaultName: `${exportFileStem(panel.title)}_${date}.md`,
+        exportScope: scope,
+      });
+    } else {
+      setFilePicker({
+        mode: "save",
+        extensions: ["md"],
+        defaultName: `meyaj_workspace_${date}.md`,
+        exportScope: scope,
+      });
     }
-    setFilePicker({ mode: "save", extensions: ["md"], defaultName: "meyaj.md" });
+    setExportMenuOpen(false);
   };
 
   const toggleMaximize = async () => {
@@ -129,14 +164,42 @@ export default function TitleBar() {
           <FileDown size={14} />
           {t("title.import")}
         </button>
-        <button
-          onClick={handleExport}
-          title={t("title.exportTooltip")}
-          className="flex h-7 items-center gap-1.5 rounded px-2 text-xs text-[var(--text-dim)] transition hover:bg-[var(--bg-hover)] hover:text-[var(--text)]"
-        >
-          <FileUp size={14} />
-          {t("title.export")}
-        </button>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setExportMenuOpen((open) => !open)}
+            title={t("title.exportTooltip")}
+            aria-haspopup="menu"
+            aria-expanded={exportMenuOpen}
+            className="flex h-7 items-center gap-1.5 rounded px-2 text-xs text-[var(--text-dim)] transition hover:bg-[var(--bg-hover)] hover:text-[var(--text)]"
+          >
+            <FileUp size={14} />
+            {t("title.export")}
+          </button>
+          {exportMenuOpen && (
+            <div
+              role="menu"
+              className="absolute right-0 top-8 z-30 w-52 rounded-md border border-[var(--border)] bg-[var(--bg-elevated)] p-1 shadow-lg"
+            >
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => startExport("active-panel")}
+                className="w-full rounded px-2.5 py-2 text-left text-xs text-[var(--text-dim)] transition hover:bg-[var(--bg-hover)] hover:text-[var(--text)]"
+              >
+                {t("export.activePanel")}
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => startExport("all-panels")}
+                className="w-full rounded px-2.5 py-2 text-left text-xs text-[var(--text-dim)] transition hover:bg-[var(--bg-hover)] hover:text-[var(--text)]"
+              >
+                {t("export.allPanels")}
+              </button>
+            </div>
+          )}
+        </div>
         <button
           type="button"
           onClick={() => setSearchOpen(true)}

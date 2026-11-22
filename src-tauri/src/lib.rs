@@ -66,6 +66,7 @@ pub fn run() {
             commands::set_panel_archived,
             commands::restore_task,
             commands::export_markdown,
+            commands::export_all_markdown,
             commands::read_text_file,
             commands::write_text_file,
             commands::list_dir,

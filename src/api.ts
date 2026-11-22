@@ -24,6 +24,8 @@ export const api = {
   exportMarkdown: (panelId: string) =>
     invoke<string>("export_markdown", { panelId }),
 
+  exportAllMarkdown: () => invoke<string>("export_all_markdown"),
+
   readTextFile: (path: string) => invoke<string>("read_text_file", { path }),
 
   writeTextFile: (path: string, contents: string) =>
@@ -77,6 +79,7 @@ export const api = {
 
   createClassifier: (name: string) =>
     invoke<Classifier[]>("create_classifier", { name }),
+
 
   deleteClassifier: (name: string) =>
     invoke<Classifier[]>("delete_classifier", { name }),
