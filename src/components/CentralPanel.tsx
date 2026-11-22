@@ -15,6 +15,7 @@ import { buildTree, groupTasksByMonth, groupTasksByProject } from "../utils/task
 import { formatMonth } from "../utils/format";
 import ProjectSection from "./ProjectSection";
 import HistoryView from "./HistoryView";
+import GanttView from "./GanttView";
 import TaskInput from "./TaskInput";
 import { TaskItem } from "./TaskItem";
 import TabBar from "./TabBar";
@@ -168,6 +169,8 @@ export default function CentralPanel() {
       <div className="min-h-0 flex-1 overflow-y-auto px-1 py-2">
         {currentView === "history" ? (
           <HistoryView />
+        ) : currentView === "gantt" ? (
+          <GanttView />
         ) : currentView === "month" ? (
           <div>
             {monthGroups.map((group) => (

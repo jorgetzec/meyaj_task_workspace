@@ -18,7 +18,7 @@ const compiled = ts.transpileModule(
 assert.deepEqual(compiled.diagnostics, [], "The store must transpile without syntax errors");
 const executeStore = new Function("require", "exports", compiled.outputText);
 
-const defaultTabs = ["all", "project", "month", "history"].map((view) => ({ view, label: null }));
+const defaultTabs = ["all", "project", "month", "history", "gantt"].map((view) => ({ view, label: null }));
 const taskInput = { content: "Nueva tarea", projectId: null, classifier: null, parentTaskId: null };
 
 function makeProject(id, label, panelId = "a") {
@@ -146,7 +146,7 @@ describe("store", { concurrency: false }, () => {
       store.getState().closeTab("month");
       assert.equal(store.getState().currentView, "project");
       store.getState().closeTab("history");
-      assert.equal(store.getState().currentView, "project");
+      store.getState().closeTab("gantt");
       store.getState().closeTab("all");
       const previous = store.getState();
       const persisted = storage.get("meyaj-tabs");
@@ -170,7 +170,7 @@ describe("store", { concurrency: false }, () => {
       store.getState().setView("history");
       assert.deepEqual(store.getState().tabs.at(-1), { view: "history", label: null });
       store.getState().addTab("history");
-      assert.equal(store.getState().tabs.length, 4);
+      assert.equal(store.getState().tabs.length, 5);
       store.getState().closeTab("month");
       store.getState().addTab("month");
       assert.equal(store.getState().currentView, "month");
@@ -412,7 +412,7 @@ describe("store", { concurrency: false }, () => {
       store.getState().renameTab("history", "Archivo");
       store.getState().setView("project");
       const previous = store.getState().tabs;
-      const order = ["history", "month", "all", "project"];
+      const order = ["history", "month", "all", "project", "gantt"];
       store.getState().reorderTabs(order);
       const expected = order.map((view) => previous.find((tab) => tab.view === view));
       assert.deepEqual(store.getState().tabs, expected);

@@ -73,6 +73,7 @@ const es: Dict = {
   "tabs.project": "Por Proyecto",
   "tabs.month": "Por Mes",
   "tabs.history": "Historial",
+  "tabs.gantt": "Actividad",
     "tabs.rename": "Renombrar pestaña (doble clic o F2)",
     "tabs.close": "Cerrar pestaña",
     "tabs.add": "Abrir pestaña",
@@ -102,6 +103,11 @@ const es: Dict = {
 
   "hashtag.title": "Pendientes clave",
   "hashtag.hint": "Escribe #hashtag al final de una tarea para agruparla aquí.",
+  "gantt.empty": "No hay tareas para mostrar en este panel.",
+  "gantt.today": "Hoy",
+  "gantt.open": "abierta",
+  "gantt.panel": "Panel",
+  "gantt.unassigned": "Sin proyecto",
   "hashtag.resize": "Ajustar ancho del panel de pendientes clave",
 
   "history.completed": "completadas",
@@ -292,6 +298,7 @@ const en: Dict = {
   "tabs.project": "By Project",
   "tabs.month": "By Month",
   "tabs.history": "History",
+  "tabs.gantt": "Activity",
     "tabs.rename": "Rename tab (double-click or F2)",
     "tabs.close": "Close tab",
     "tabs.add": "Open tab",
@@ -321,6 +328,11 @@ const en: Dict = {
 
   "hashtag.title": "Key tasks",
   "hashtag.hint": "Write #hashtag at the end of a task to group it here.",
+  "gantt.empty": "No tasks to show in this panel.",
+  "gantt.today": "Today",
+  "gantt.open": "open",
+  "gantt.panel": "Panel",
+  "gantt.unassigned": "No project",
   "hashtag.resize": "Resize the key tasks panel",
 
   "history.completed": "completed",

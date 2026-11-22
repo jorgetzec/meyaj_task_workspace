@@ -131,7 +131,7 @@ export default function TabBar() {
     reorderTabs(arrayMove(views, from, to));
   };
 
-  const viewOptions: ViewKind[] = ["all", "project", "month", "history"];
+  const viewOptions: ViewKind[] = ["all", "project", "month", "history", "gantt"];
   const closedViews = viewOptions.filter((view) => !tabs.some((tab) => tab.view === view));
 
   return (

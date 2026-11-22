@@ -61,7 +61,7 @@ export interface CreateTaskInput {
   parentTaskId: string | null;
 }
 
-export type ViewKind = "all" | "project" | "month" | "history";
+export type ViewKind = "all" | "project" | "month" | "history" | "gantt";
 
 export interface Tab {
   view: ViewKind;

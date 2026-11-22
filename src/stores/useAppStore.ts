@@ -96,7 +96,7 @@ interface AppStore {
 }
 
 const THEMES: Theme[] = ["dark", "light", "dracula", "nord"];
-const VIEWS: ViewKind[] = ["all", "project", "month", "history"];
+const VIEWS: ViewKind[] = ["all", "project", "month", "history", "gantt"];
 const defaultTabs = (): Tab[] => VIEWS.map((view) => ({ view, label: null }));
 
 function restoreTabs(): { tabs: Tab[]; currentView: ViewKind } {
