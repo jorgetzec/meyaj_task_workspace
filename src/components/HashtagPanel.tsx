@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { useAppStore } from "../stores/useAppStore";
 import { useT } from "../i18n";
+import type { HashtagItem } from "../types";
 
 const MIN_W = 180;
 const MAX_W = 560;
@@ -9,6 +10,8 @@ const MAX_W = 560;
 export default function HashtagPanel() {
   const t = useT();
   const hashtagGroups = useAppStore((s) => s.hashtagGroups);
+  const setActivePanel = useAppStore((s) => s.setActivePanel);
+  const revealTask = useAppStore((s) => s.revealTask);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
 
   const [width, setWidth] = useState<number>(() => {
@@ -59,6 +62,11 @@ export default function HashtagPanel() {
       else next.add(tag);
       return next;
     });
+  };
+
+  const openItem = async (item: HashtagItem) => {
+    await setActivePanel(item.panelId);
+    revealTask(item.taskId);
   };
 
   return (
@@ -129,21 +137,29 @@ export default function HashtagPanel() {
               {!isCollapsed && (
                 <ul className="border-t border-[var(--border)] px-2.5 py-1.5">
                   {group.items.map((item) => (
-                    <li
-                      key={item.taskId}
-                      className="flex items-start gap-1.5 py-1 text-[0.75rem] leading-snug text-[var(--text-dim)]"
-                    >
-                      <span aria-hidden="true" className="mt-[0.45rem] h-1 w-1 shrink-0 rounded-full bg-[var(--text-faint)]" />
-                      <span className="min-w-0">
-                        {item.classifier && (
-                          <span className="mono mr-1 text-[0.625rem] uppercase tracking-wide text-[var(--text-faint)]">
-                            {item.classifier}
+                    <li key={item.taskId}>
+                      <button
+                        type="button"
+                        onClick={() => void openItem(item)}
+                        className="flex w-full items-start gap-1.5 rounded px-1 py-1 text-left text-[0.75rem] leading-snug text-[var(--text-dim)] transition hover:bg-[var(--bg-hover)] hover:text-[var(--text)]"
+                      >
+                        <span aria-hidden="true" className="mt-[0.45rem] h-1 w-1 shrink-0 rounded-full bg-[var(--text-faint)]" />
+                        <span className="min-w-0 flex-1">
+                          <span className="flex items-center gap-1.5">
+                            {item.classifier && (
+                              <span className="mono text-[0.625rem] uppercase tracking-wide text-[var(--text-faint)]">
+                                {item.classifier}
+                              </span>
+                            )}
+                            <span className="rounded bg-[var(--bg-active)] px-1 py-px text-[0.5625rem] text-[var(--text-faint)]">
+                              {item.panelTitle}
+                            </span>
                           </span>
-                        )}
-                        <span className="line-clamp-2">
-                          {item.content.replace(/#[\p{L}\p{N}_/-]+/gu, "").trim()}
+                          <span className="mt-0.5 block line-clamp-2">
+                            {item.content.replace(/#[\p{L}\p{N}_/-]+/gu, "").trim()}
+                          </span>
                         </span>
-                      </span>
+                      </button>
                     </li>
                   ))}
                 </ul>

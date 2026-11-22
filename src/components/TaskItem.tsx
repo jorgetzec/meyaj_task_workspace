@@ -55,6 +55,7 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
   const moveTask = useAppStore((s) => s.moveTask);
   const projects = useAppStore((s) => s.projects);
   const lastCreatedTaskId = useAppStore((s) => s.lastCreatedTaskId);
+  const focusTaskId = useAppStore((s) => s.focusTaskId);
   const rowRef = useRef<HTMLDivElement>(null);
   const completingRef = useRef(false);
   const childSubmitting = useRef(false);
@@ -64,13 +65,13 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
   const chipColor = task.classifier ? classifierColor(task.classifier) : null;
 
   useEffect(() => {
-    if (task.id !== lastCreatedTaskId) return;
+    if (task.id !== lastCreatedTaskId && task.id !== focusTaskId) return;
     const frame = window.requestAnimationFrame(() => {
       rowRef.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" });
       rowRef.current?.focus({ preventScroll: true });
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [task.id, lastCreatedTaskId]);
+  }, [task.id, lastCreatedTaskId, focusTaskId]);
 
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(task.content);
@@ -191,7 +192,7 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
         }}
         className={`group flex items-start gap-2 px-2 py-[3px] hover:bg-[var(--bg-hover)] ${
           depth > 0 ? "rounded-r" : "rounded"
-        } ${task.id === lastCreatedTaskId ? "task-new" : ""} ${
+        } ${task.id === lastCreatedTaskId || task.id === focusTaskId ? "task-new" : ""} ${
           dragProps?.isDragging ? "opacity-40" : ""
         }`}
       >

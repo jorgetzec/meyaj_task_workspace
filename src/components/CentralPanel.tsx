@@ -34,12 +34,20 @@ export default function CentralPanel() {
   const language = useAppStore((s) => s.language);
   const lastCreatedTaskId = useAppStore((s) => s.lastCreatedTaskId);
   const clearTaskHighlight = useAppStore((s) => s.clearTaskHighlight);
+  const focusTaskId = useAppStore((s) => s.focusTaskId);
+  const clearFocusTask = useAppStore((s) => s.clearFocusTask);
 
   useEffect(() => {
     if (!lastCreatedTaskId) return;
     const timer = window.setTimeout(() => clearTaskHighlight(), 2400);
     return () => window.clearTimeout(timer);
   }, [lastCreatedTaskId, clearTaskHighlight]);
+
+  useEffect(() => {
+    if (!focusTaskId) return;
+    const timer = window.setTimeout(() => clearFocusTask(), 2400);
+    return () => window.clearTimeout(timer);
+  }, [focusTaskId, clearFocusTask]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),

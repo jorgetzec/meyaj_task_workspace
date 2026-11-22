@@ -24,6 +24,7 @@ interface AppStore {
   classifiers: Classifier[];
   tasks: Task[];
   lastCreatedTaskId: string | null;
+  focusTaskId: string | null;
   history: HistoryEntry[];
   hashtagGroups: HashtagGroup[];
   activePanelId: string | null;
@@ -56,6 +57,8 @@ interface AppStore {
   addTab: (view: ViewKind) => void;
     reorderTabs: (views: ViewKind[]) => void;
     clearTaskHighlight: () => void;
+    revealTask: (taskId: string) => void;
+    clearFocusTask: () => void;
   setProjectFilter: (id: string | null) => void;
   setTheme: (theme: Theme) => void;
   setLanguage: (lang: Lang) => void;
@@ -191,6 +194,7 @@ export const useAppStore = create<AppStore>((set, get) => {
     classifiers: [],
     tasks: [],
     lastCreatedTaskId: null,
+    focusTaskId: null,
     history: [],
     hashtagGroups: [],
     activePanelId: null,
@@ -303,6 +307,8 @@ export const useAppStore = create<AppStore>((set, get) => {
           set({ tabs });
         },
         clearTaskHighlight: () => set({ lastCreatedTaskId: null }),
+        revealTask: (taskId) => set({ focusTaskId: taskId }),
+        clearFocusTask: () => set({ focusTaskId: null }),
     setProjectFilter: (id) => {
       get().setView("project");
       set({ projectFilter: id });

@@ -40,6 +40,7 @@ export default function ProjectSection({ project, roots }: Props) {
   const setProjectColor = useAppStore((s) => s.setProjectColor);
   const deleteProject = useAppStore((s) => s.deleteProject);
   const lastCreatedTaskId = useAppStore((s) => s.lastCreatedTaskId);
+  const focusTaskId = useAppStore((s) => s.focusTaskId);
   const [actionsOpen, setActionsOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState(false);
   const [nameDraft, setNameDraft] = useState(project.label);
@@ -58,8 +59,8 @@ export default function ProjectSection({ project, roots }: Props) {
   const otherPanels = panels.filter((panel) => !panel.archived && panel.id !== project.panelId);
 
   useEffect(() => {
-    if (lastCreatedTaskId && containsTask(roots, lastCreatedTaskId)) setCollapsed(false);
-  }, [lastCreatedTaskId, roots]);
+    if ((lastCreatedTaskId && containsTask(roots, lastCreatedTaskId)) || (focusTaskId && containsTask(roots, focusTaskId))) setCollapsed(false);
+  }, [lastCreatedTaskId, focusTaskId, roots]);
 
   useEffect(() => {
     if (!actionsOpen) return;
