@@ -12,17 +12,7 @@ import { getInlineSuggestion } from "../utils/autocomplete";
 import { SortableTaskItem } from "./TaskItem";
 import ProjectIcon, { PROJECT_ICON_IDS } from "./ProjectIcon";
 import Dialog from "./Dialog";
-
-const PROJECT_COLORS = [
-  "#7b9bff",
-  "#5ec8d8",
-  "#4fbf8b",
-  "#d8c04f",
-  "#f0a35e",
-  "#e0715d",
-  "#c07be0",
-  "#8b93a7",
-];
+import ColorPicker from "./ColorPicker";
 
 function countTasks(nodes: TaskNode[]): number {
   return nodes.reduce((count, node) => count + 1 + countTasks(node.children), 0);
@@ -292,33 +282,12 @@ export default function ProjectSection({ project, roots }: Props) {
               </div>
 
               <div className="px-1 py-1 text-xs font-semibold text-[var(--text-dim)]">{t("section.color")}</div>
-              <div role="group" aria-label={t("section.color")} className="mb-2 flex flex-wrap gap-1.5 px-1">
-                {PROJECT_COLORS.map((color) => (
-                  <button
-                    key={color}
-                    type="button"
-                    disabled={pendingAction}
-                    aria-pressed={project.colorAccent === color}
-                    aria-label={color}
-                    title={color}
-                    onClick={() => void runAction(() => setProjectColor(project.id, color))}
-                    className={`h-6 w-6 rounded-full border transition hover:scale-110 disabled:opacity-50 ${
-                      project.colorAccent === color
-                        ? "border-[var(--text)] ring-2 ring-[var(--border-strong)]"
-                        : "border-transparent"
-                    }`}
-                    style={{ background: color }}
-                  />
-                ))}
-                <button
-                  type="button"
+              <div className="mb-2 px-1">
+                <ColorPicker
+                  value={project.colorAccent}
                   disabled={pendingAction}
-                  onClick={() => void runAction(() => setProjectColor(project.id, null))}
-                  aria-pressed={!project.colorAccent}
-                  className="ml-0.5 rounded px-1.5 text-[0.625rem] text-[var(--text-faint)] hover:bg-[var(--bg-hover)] hover:text-[var(--text)] disabled:opacity-50"
-                >
-                  {t("section.noColor")}
-                </button>
+                  onChange={(color) => void runAction(() => setProjectColor(project.id, color))}
+                />
               </div>
 
               <div className="px-1 py-1 text-xs font-semibold text-[var(--text-dim)]">

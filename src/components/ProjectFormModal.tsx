@@ -3,17 +3,7 @@ import { X } from "lucide-react";
 import { useAppStore } from "../stores/useAppStore";
 import { useT } from "../i18n";
 import Dialog from "./Dialog";
-
-const COLORS: (string | null)[] = [
-  null,
-  "#7b9bff",
-  "#ff7b7b",
-  "#6bd491",
-  "#ffd37b",
-  "#d37bff",
-  "#7bffff",
-  "#ff9bd3",
-];
+import ColorPicker from "./ColorPicker";
 
 export default function ProjectFormModal() {
   const t = useT();
@@ -81,26 +71,7 @@ export default function ProjectFormModal() {
             <span className="mb-1.5 block text-[0.6875rem] font-semibold uppercase tracking-[0.12em] text-[var(--text-faint)]">
               {t("projectForm.color")}
             </span>
-            <div className="flex items-center gap-1.5">
-              {COLORS.map((c) => (
-                <button
-                  key={c ?? "none"}
-                  type="button"
-                  onClick={() => setColor(c)}
-                  title={c ?? t("projectForm.noColor")}
-                  aria-label={c ? `${t("projectForm.color")}: ${c}` : t("projectForm.noColor")}
-                  aria-pressed={color === c}
-                  className={`flex h-6 w-6 items-center justify-center rounded-full border-2 transition ${
-                    color === c ? "border-[var(--text)]" : "border-transparent"
-                  }`}
-                  style={{ background: c ?? "transparent" }}
-                >
-                  {c === null && (
-                    <span className="text-[0.625rem] text-[var(--text-faint)]">✕</span>
-                  )}
-                </button>
-              ))}
-            </div>
+            <ColorPicker value={color} onChange={setColor} />
           </div>
         </div>
 

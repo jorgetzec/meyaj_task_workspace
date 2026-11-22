@@ -38,7 +38,10 @@ const es: Dict = {
   "title.minimize": "Minimizar",
   "title.maximize": "Maximizar",
   "title.restore": "Restaurar",
-  "title.close": "Cerrar",
+  "color.presets": "Colores predefinidos",
+  "color.hex": "Código hexadecimal",
+  "color.none": "Sin color",
+  "color.invalid": "Escribe un color como #7b9bff o #7bf.",
 
   "sidebar.panels": "Paneles",
   "sidebar.collapse": "Colapsar",
@@ -254,6 +257,10 @@ const en: Dict = {
   "title.maximize": "Maximize",
   "title.restore": "Restore",
   "title.close": "Close",
+  "color.presets": "Preset colors",
+  "color.hex": "Hex code",
+  "color.none": "No color",
+  "color.invalid": "Enter a color like #7b9bff or #7bf.",
 
   "sidebar.panels": "Panels",
   "sidebar.collapse": "Collapse",
