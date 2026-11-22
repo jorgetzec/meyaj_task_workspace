@@ -1,10 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useAppStore } from "../stores/useAppStore";
 import { useT } from "../i18n";
-import { api } from "../api";
-import type { PanelState, Project, Task } from "../types";
+import type { Project, Task } from "../types";
 import { formatDate } from "../utils/format";
-import ThemedSelect from "./ThemedSelect";
 
 const DAY_MS = 86_400_000;
 
@@ -31,43 +29,18 @@ function tickLabel(ms: number): string {
   return `${day}/${month}`;
 }
 
+function stripHashtags(content: string): string {
+  return content.replace(/#[\p{L}\p{N}_/-]+/gu, "").trim();
+}
+
 /**
- * Activity timeline: one bar per task from its creation date to its completion
- * date (or today while open), grouped by project and colored by project.
+ * Activity timeline for the active panel: each task gets a lane inside its
+ * project, drawn from its creation date to its completion date (or today).
  */
 export default function GanttView() {
   const t = useT();
-  const panels = useAppStore((s) => s.panels);
-  const activePanelId = useAppStore((s) => s.activePanelId);
-  const activeTasks = useAppStore((s) => s.tasks);
-  const activeProjects = useAppStore((s) => s.projects);
-  const [panelId, setPanelId] = useState<string | null>(null);
-  const [loaded, setLoaded] = useState<PanelState | null>(null);
-
-  const effectivePanelId =
-    panelId ?? activePanelId ?? panels.find((panel) => !panel.archived)?.id ?? null;
-  const isActive = effectivePanelId === activePanelId;
-  const tasks = isActive ? activeTasks : loaded?.tasks ?? [];
-  const projects = isActive ? activeProjects : loaded?.projects ?? [];
-
-  useEffect(() => {
-    if (!panelId && activePanelId) setPanelId(activePanelId);
-  }, [activePanelId, panelId]);
-
-  useEffect(() => {
-    if (effectivePanelId && !isActive) {
-      let cancelled = false;
-      api
-        .loadState(effectivePanelId)
-        .then((state) => {
-          if (!cancelled) setLoaded(state);
-        })
-        .catch(() => {});
-      return () => {
-        cancelled = true;
-      };
-    }
-  }, [effectivePanelId, isActive]);
+  const tasks = useAppStore((s) => s.tasks);
+  const projects = useAppStore((s) => s.projects);
 
   const { min, max, bars } = useMemo(() => {
     const now = Date.now();
@@ -131,57 +104,51 @@ export default function GanttView() {
     return list;
   }, [min, max, span]);
 
-  const panelOptions = panels
-    .filter((panel) => !panel.archived)
-    .map((panel) => ({ value: panel.id, label: panel.title }));
-
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex shrink-0 items-center gap-2 border-b border-[var(--border)] px-3 py-2">
-        <span className="text-xs text-[var(--text-dim)]">{t("gantt.panel")}</span>
-        <ThemedSelect
-          value={effectivePanelId ?? ""}
-          options={panelOptions}
-          onChange={(value) => setPanelId(value || null)}
-          label={t("gantt.panel")}
-        />
-      </div>
-
+    <div className="h-full overflow-auto">
       {bars.length === 0 ? (
         <p className="px-3 py-8 text-sm text-[var(--text-faint)]">{t("gantt.empty")}</p>
       ) : (
-        <div className="min-h-0 flex-1 overflow-auto">
-          <div className="min-w-[640px]">
-            <div className="flex border-b border-[var(--border)]">
-              <div className="w-44 shrink-0" />
-              <div className="relative h-6 flex-1">
-                {ticks.map((tick) => (
-                  <span
-                    key={tick}
-                    className="absolute top-0 -translate-x-1/2 text-[0.625rem] text-[var(--text-faint)]"
-                    style={{ left: `${x(tick)}%` }}
-                  >
-                    {tickLabel(tick)}
-                  </span>
-                ))}
-              </div>
+        <div className="min-w-[640px]">
+          <div className="flex border-b border-[var(--border)]">
+            <div className="w-48 shrink-0" />
+            <div className="relative h-6 flex-1">
+              {ticks.map((tick) => (
+                <span
+                  key={tick}
+                  className="absolute top-0 -translate-x-1/2 text-[0.625rem] text-[var(--text-faint)]"
+                  style={{ left: `${x(tick)}%` }}
+                >
+                  {tickLabel(tick)}
+                </span>
+              ))}
             </div>
+          </div>
 
-            {rows.map((row) => (
-              <div key={row.project.id || "__unassigned__"} className="flex border-b border-[var(--border)]">
-                <div className="flex w-44 shrink-0 items-center gap-2 px-2 py-1">
+          {rows.map((row) => (
+            <div key={row.project.id || "__unassigned__"}>
+              <div className="flex border-b border-[var(--border)] bg-[var(--bg-elevated)]">
+                <div className="flex w-48 shrink-0 items-center gap-2 px-2 py-1">
                   <span
                     className="h-2.5 w-2.5 shrink-0 rounded-full"
                     style={{ background: row.project.colorAccent ?? "var(--text-faint)" }}
                   />
-                  <span className="truncate text-xs text-[var(--text-dim)]">
+                  <span className="truncate text-xs font-medium text-[var(--text)]">
                     {row.project.label}
                   </span>
                 </div>
-                <div className="relative h-8 flex-1">
-                  {row.bars.map((bar) => (
+                <div className="h-6 flex-1" />
+              </div>
+
+              {row.bars.map((bar) => (
+                <div key={bar.task.id} className="flex border-b border-[var(--border)]">
+                  <div className="flex w-48 shrink-0 items-center gap-2 px-3 py-0.5">
+                    <span className="truncate text-[0.6875rem] text-[var(--text-faint)]">
+                      {stripHashtags(bar.task.content)}
+                    </span>
+                  </div>
+                  <div className="relative h-5 flex-1">
                     <div
-                      key={bar.task.id}
                       title={`${row.project.label} — ${bar.task.content} (${formatDate(bar.task.createdAt)} → ${
                         bar.task.completedAt ? formatDate(bar.task.completedAt) : t("gantt.today")
                       })`}
@@ -194,11 +161,11 @@ export default function GanttView() {
                         background: row.project.colorAccent ?? "var(--accent)",
                       }}
                     />
-                  ))}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ))}
         </div>
       )}
     </div>

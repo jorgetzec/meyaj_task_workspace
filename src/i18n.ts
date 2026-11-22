@@ -106,7 +106,6 @@ const es: Dict = {
   "gantt.empty": "No hay tareas para mostrar en este panel.",
   "gantt.today": "Hoy",
   "gantt.open": "abierta",
-  "gantt.panel": "Panel",
   "gantt.unassigned": "Sin proyecto",
   "hashtag.resize": "Ajustar ancho del panel de pendientes clave",
 
@@ -331,7 +330,6 @@ const en: Dict = {
   "gantt.empty": "No tasks to show in this panel.",
   "gantt.today": "Today",
   "gantt.open": "open",
-  "gantt.panel": "Panel",
   "gantt.unassigned": "No project",
   "hashtag.resize": "Resize the key tasks panel",
 
