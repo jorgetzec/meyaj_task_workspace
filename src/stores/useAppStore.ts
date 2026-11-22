@@ -307,7 +307,10 @@ export const useAppStore = create<AppStore>((set, get) => {
           set({ tabs });
         },
         clearTaskHighlight: () => set({ lastCreatedTaskId: null }),
-        revealTask: (taskId) => set({ focusTaskId: taskId }),
+        revealTask: (taskId) => {
+          get().setView("all");
+          set({ focusTaskId: taskId });
+        },
         clearFocusTask: () => set({ focusTaskId: null }),
     setProjectFilter: (id) => {
       get().setView("project");
