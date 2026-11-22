@@ -10,6 +10,8 @@ export default function SearchModal() {
   const setOpen = useAppStore((s) => s.setSearchOpen);
   const tasks = useAppStore((s) => s.tasks);
   const history = useAppStore((s) => s.history);
+  const revealTask = useAppStore((s) => s.revealTask);
+  const setView = useAppStore((s) => s.setView);
 
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -40,7 +42,7 @@ export default function SearchModal() {
       className="w-[560px] max-w-full"
       initialFocusRef={inputRef}
     >
-        <div className="flex items-center gap-2 border-b border-[var(--border)] px-3">
+        <div className="flex items-center gap-2 border-b border-[var(--border)] px-3 pt-1">
           <Search size={15} className="shrink-0 text-[var(--text-faint)]" />
           <input
             ref={inputRef}
@@ -82,9 +84,14 @@ export default function SearchModal() {
                 {t("search.active")}
               </div>
               {activeMatches.map((task) => (
-                <div
+                <button
                   key={task.id}
-                  className="flex items-start gap-2 rounded px-2 py-1.5 hover:bg-[var(--bg-hover)]"
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    revealTask(task.id);
+                  }}
+                  className="flex w-full items-start gap-2 rounded px-2 py-1.5 text-left hover:bg-[var(--bg-hover)]"
                 >
                   <span className="mono shrink-0 text-[0.625rem] font-semibold text-[var(--accent)]">
                     {task.classifier ?? ""}
@@ -92,7 +99,7 @@ export default function SearchModal() {
                   <span className="mono min-w-0 text-[0.8125rem] text-[var(--text)]">
                     {task.content}
                   </span>
-                </div>
+                </button>
               ))}
             </>
           )}
@@ -103,9 +110,14 @@ export default function SearchModal() {
                 {t("search.history")}
               </div>
               {historyMatches.map((h) => (
-                <div
+                <button
                   key={h.id}
-                  className="flex items-start gap-2 rounded px-2 py-1.5 hover:bg-[var(--bg-hover)]"
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    setView("history");
+                  }}
+                  className="flex w-full items-start gap-2 rounded px-2 py-1.5 text-left hover:bg-[var(--bg-hover)]"
                 >
                   <span className="mono shrink-0 text-[0.625rem] font-semibold text-[var(--accent)]">
                     {h.classifier ?? ""}
@@ -113,7 +125,7 @@ export default function SearchModal() {
                   <span className="mono min-w-0 text-[0.8125rem] text-[var(--text-dim)] line-through">
                     {h.snapshotContent}
                   </span>
-                </div>
+                </button>
               ))}
             </>
           )}
