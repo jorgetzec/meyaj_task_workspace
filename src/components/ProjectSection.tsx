@@ -11,6 +11,7 @@ import { knownTags } from "../utils/hashtags";
 import { getInlineSuggestion } from "../utils/autocomplete";
 import { SortableTaskItem } from "./TaskItem";
 import ProjectIcon, { PROJECT_ICON_IDS } from "./ProjectIcon";
+import { contrastTextColor } from "../utils/colors";
 import Dialog from "./Dialog";
 import ColorPicker from "./ColorPicker";
 
@@ -211,7 +212,21 @@ export default function ProjectSection({ project, roots }: Props) {
           />
         </button>
         {project.icon ? (
-          <ProjectIcon icon={project.icon} size={15} className="shrink-0" style={{ color: project.colorAccent ?? "var(--text-dim)" }} />
+          <span
+            className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full"
+            style={
+              project.colorAccent
+                ? { backgroundColor: project.colorAccent }
+                : { backgroundColor: "var(--bg-active)" }
+            }
+          >
+            <ProjectIcon
+              icon={project.icon}
+              size={12}
+              className="shrink-0"
+              style={{ color: project.colorAccent ? contrastTextColor(project.colorAccent) : "var(--text-dim)" }}
+            />
+          </span>
         ) : project.colorAccent ? (
           <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: project.colorAccent }} />
         ) : null}

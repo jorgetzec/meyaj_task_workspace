@@ -5,6 +5,7 @@ import { GripVertical, Plus, Trash2, CornerUpLeft, FolderInput } from "lucide-re
 import { useAppStore } from "../stores/useAppStore";
 import { useT } from "../i18n";
 import type { TaskNode } from "../utils/tasks";
+import { classifierColor } from "../utils/colors";
 import { yyyymmdd } from "../utils/format";
 import Dialog from "./Dialog";
 
@@ -60,7 +61,7 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
   const childCancelled = useRef(false);
   const [savingChild, setSavingChild] = useState(false);
   const hasChildren = node.children.length > 0;
-  const projectAccent = projects.find((project) => project.id === task.projectId)?.colorAccent ?? undefined;
+  const chipColor = task.classifier ? classifierColor(task.classifier) : null;
 
   useEffect(() => {
     if (task.id !== lastCreatedTaskId) return;
@@ -255,8 +256,8 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
                       : "bg-[var(--bg-active)] text-[var(--text-faint)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-dim)]"
                   }`}
                   style={
-                    projectAccent && task.classifier
-                      ? { color: projectAccent, backgroundColor: `${projectAccent}22` }
+                    chipColor && task.classifier
+                      ? { color: chipColor, backgroundColor: `${chipColor}22` }
                       : undefined
                   }
                 >
@@ -315,7 +316,7 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
                 }}
                 className="mono min-w-0 flex-1 cursor-text text-left text-[var(--text)]"
               >
-                <HighlightedContent text={task.content} accent={projectAccent} />
+                <HighlightedContent text={task.content} accent={chipColor ?? undefined} />
               </button>
             </div>
           )}

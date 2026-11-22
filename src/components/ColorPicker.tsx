@@ -1,25 +1,6 @@
 import { useEffect, useState } from "react";
 import { useT } from "../i18n";
-
-export const PROJECT_PRESET_COLORS = [
-  "#7b9bff",
-  "#5ec8d8",
-  "#4fbf8b",
-  "#a3d15f",
-  "#d8c04f",
-  "#f0a35e",
-  "#e0715d",
-  "#e05d8f",
-  "#c07be0",
-  "#8b7bd8",
-  "#8b93a7",
-  "#6b7280",
-];
-
-function normalizeHex(raw: string): string | null {
-  const value = raw.trim().toLowerCase();
-  return /^#([0-9a-f]{3}|[0-9a-f]{6})$/.test(value) ? value : null;
-}
+import { PROJECT_PRESET_COLORS, normalizeHex } from "../utils/colors";
 
 interface Props {
   value: string | null;
