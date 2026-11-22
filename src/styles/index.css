@@ -199,8 +199,8 @@ textarea:focus-visible,
 }
 
 @keyframes task-arrival {
-  0%, 35% { background-color: var(--accent-dim); box-shadow: inset 3px 0 var(--accent); }
-  100% { background-color: transparent; box-shadow: inset 3px 0 transparent; }
+  0%, 35% { background-color: var(--accent-dim); }
+  100% { background-color: transparent; }
 }
 
 .task-new {
