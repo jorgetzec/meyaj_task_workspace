@@ -73,6 +73,7 @@ pub fn run() {
             commands::import_default_dir,
             commands::import_markdown,
             commands::hashtags_from,
+            commands::hashtag_overview,
             commands::list_classifiers,
             commands::create_classifier,
             commands::delete_classifier,

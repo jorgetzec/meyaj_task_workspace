@@ -2,7 +2,7 @@ use sqlx::{Row, SqliteConnection, SqlitePool};
 use tauri::State;
 use uuid::Uuid;
 
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use crate::db::AppState;
 use crate::import;
@@ -515,6 +515,67 @@ async fn delete_project_inner(pool: &SqlitePool, project_id: &str) -> CmdResult<
     tx.commit().await.map_err(err)?;
 
     build_panel_state(pool, &panel).await.map_err(err)
+}
+
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HashtagItem {
+    pub task_id: String,
+    pub panel_id: String,
+    pub panel_title: String,
+    pub project_id: Option<String>,
+    pub classifier: Option<String>,
+    pub content: String,
+}
+
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HashtagGroup {
+    pub tag: String,
+    pub count: usize,
+    pub items: Vec<HashtagItem>,
+}
+
+/// Aggregates hashtags across every non-archived panel for the right panel.
+#[tauri::command]
+pub async fn hashtag_overview(state: State<'_, AppState>) -> CmdResult<Vec<HashtagGroup>> {
+    let pool = &state.pool;
+    let rows = sqlx::query(
+        "SELECT h.name AS tag, t.id AS task_id, t.content, t.classifier, t.project_id, \
+                p.id AS panel_id, p.title AS panel_title \
+         FROM task_hashtag th \
+         JOIN hashtag h ON h.id = th.hashtag_id \
+         JOIN task t ON t.id = th.task_id \
+         JOIN project pr ON pr.id = t.project_id \
+         JOIN panel p ON p.id = pr.panel_id \
+         WHERE p.archived = 0 AND t.completed = 0 \
+         ORDER BY h.name, t.created_at",
+    )
+    .fetch_all(pool)
+    .await
+    .map_err(err)?;
+
+    let mut grouped: BTreeMap<String, Vec<HashtagItem>> = BTreeMap::new();
+    for row in rows {
+        let tag: String = row.get("tag");
+        grouped.entry(tag.clone()).or_default().push(HashtagItem {
+            task_id: row.get("task_id"),
+            panel_id: row.get("panel_id"),
+            panel_title: row.get("panel_title"),
+            project_id: row.get("project_id"),
+            classifier: row.get("classifier"),
+            content: row.get("content"),
+        });
+    }
+
+    Ok(grouped
+        .into_iter()
+        .map(|(tag, items)| HashtagGroup {
+            count: items.len(),
+            tag,
+            items,
+        })
+        .collect())
 }
 
 /// Ensures a default panel exists and returns the full state of the active panel.

@@ -1,15 +1,14 @@
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { useAppStore } from "../stores/useAppStore";
 import { useT } from "../i18n";
-import { hashtagCounts } from "../utils/format";
 
 const MIN_W = 180;
 const MAX_W = 560;
 
 export default function HashtagPanel() {
   const t = useT();
-  const tasks = useAppStore((s) => s.tasks);
+  const hashtagGroups = useAppStore((s) => s.hashtagGroups);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
 
   const [width, setWidth] = useState<number>(() => {
@@ -53,8 +52,6 @@ export default function HashtagPanel() {
     }
   };
 
-  const counts = useMemo(() => hashtagCounts(tasks), [tasks]);
-
   const toggle = (tag: string) => {
     setCollapsed((prev) => {
       const next = new Set(prev);
@@ -88,31 +85,30 @@ export default function HashtagPanel() {
           <span className="text-[0.625rem] font-semibold uppercase tracking-[0.14em] text-[var(--text-faint)]">
             {t("hashtag.title")}
           </span>
-          {counts.length > 0 && (
+          {hashtagGroups.length > 0 && (
             <span className="tabular-nums text-[0.625rem] text-[var(--text-faint)]">
-              {counts.length} · {counts.reduce((total, [, count]) => total + count, 0)}
+              {hashtagGroups.length} · {hashtagGroups.reduce((total, group) => total + group.count, 0)}
             </span>
           )}
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto px-2.5 py-3">
-        {counts.length === 0 && (
+        {hashtagGroups.length === 0 && (
           <p className="px-1 py-6 text-[0.6875rem] leading-relaxed text-[var(--text-faint)]">
             {t("hashtag.hint")}
           </p>
         )}
 
-        {counts.map(([tag, count]) => {
-          const items = tasks.filter((t) => t.hashtags.includes(tag));
-          const isCollapsed = collapsed.has(tag);
+        {hashtagGroups.map((group) => {
+          const isCollapsed = collapsed.has(group.tag);
           return (
             <section
-              key={tag}
+              key={group.tag}
               className="mb-2 overflow-hidden rounded-md border border-[var(--border)] bg-[var(--bg)] transition hover:border-[var(--border-strong)]"
             >
               <button
-                onClick={() => toggle(tag)}
+                onClick={() => toggle(group.tag)}
                 aria-expanded={!isCollapsed}
                 className="flex w-full items-center gap-2 px-2.5 py-2 text-left hover:bg-[var(--bg-hover)]"
               >
@@ -123,29 +119,29 @@ export default function HashtagPanel() {
                   }`}
                 />
                 <span className="mono truncate text-[0.75rem] font-semibold text-[var(--accent)]">
-                  #{tag}
+                  #{group.tag}
                 </span>
                 <span className="ml-auto shrink-0 rounded-full bg-[var(--bg-active)] px-1.5 py-px tabular-nums text-[0.625rem] text-[var(--text-dim)]">
-                  {count}
+                  {group.count}
                 </span>
               </button>
 
               {!isCollapsed && (
                 <ul className="border-t border-[var(--border)] px-2.5 py-1.5">
-                  {items.map((t) => (
+                  {group.items.map((item) => (
                     <li
-                      key={t.id}
+                      key={item.taskId}
                       className="flex items-start gap-1.5 py-1 text-[0.75rem] leading-snug text-[var(--text-dim)]"
                     >
                       <span aria-hidden="true" className="mt-[0.45rem] h-1 w-1 shrink-0 rounded-full bg-[var(--text-faint)]" />
                       <span className="min-w-0">
-                        {t.classifier && (
+                        {item.classifier && (
                           <span className="mono mr-1 text-[0.625rem] uppercase tracking-wide text-[var(--text-faint)]">
-                            {t.classifier}
+                            {item.classifier}
                           </span>
                         )}
                         <span className="line-clamp-2">
-                          {t.content.replace(/#[\p{L}\p{N}_/-]+/gu, "").trim()}
+                          {item.content.replace(/#[\p{L}\p{N}_/-]+/gu, "").trim()}
                         </span>
                       </span>
                     </li>

@@ -72,6 +72,21 @@ export type Theme = "dark" | "light" | "dracula" | "nord" | "custom";
 
 export type Lang = "es" | "en";
 
+export interface HashtagItem {
+  taskId: string;
+  panelId: string;
+  panelTitle: string;
+  projectId: string | null;
+  classifier: string | null;
+  content: string;
+}
+
+export interface HashtagGroup {
+  tag: string;
+  count: number;
+  items: HashtagItem[];
+}
+
 export type FilePickerMode = "open" | "save" | "theme";
 
 /** Request that opens the in-app file picker instead of the native dialog. */

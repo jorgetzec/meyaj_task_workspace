@@ -93,6 +93,7 @@ function harness(t, { saved = {}, api: overrides = {} } = {}) {
   const implementations = {
     bootstrap: async () => panelState(),
     listHistory: async () => [],
+    hashtagOverview: async () => [],
     loadState: async (panelId) => panelState(panelId),
     createProject: unexpected,
     createTask: unexpected,

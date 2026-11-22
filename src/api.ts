@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import type {
   Classifier,
   CreateTaskInput,
+  HashtagGroup,
   HistoryEntry,
   Panel,
   PanelState,
@@ -14,6 +15,8 @@ export const api = {
 
   listHistory: (panelId: string) =>
     invoke<HistoryEntry[]>("list_history", { panelId }),
+
+  hashtagOverview: () => invoke<HashtagGroup[]>("hashtag_overview"),
 
   restoreTask: (historyId: string) =>
     invoke<PanelState>("restore_task", { historyId }),

@@ -6,6 +6,7 @@ import type {
   Classifier,
   CreateTaskInput,
   FilePickerRequest,
+  HashtagGroup,
   HistoryEntry,
   Lang,
   Panel,
@@ -24,6 +25,7 @@ interface AppStore {
   tasks: Task[];
   lastCreatedTaskId: string | null;
   history: HistoryEntry[];
+  hashtagGroups: HashtagGroup[];
   activePanelId: string | null;
   currentView: ViewKind;
   tabs: Tab[];
@@ -85,6 +87,7 @@ interface AppStore {
   importMarkdown: (markdown: string) => Promise<void>;
   archivePanel: (panelId: string, archived: boolean) => Promise<void>;
   restoreTask: (historyId: string) => Promise<void>;
+  refreshHashtags: () => Promise<void>;
   createClassifier: (name: string) => Promise<boolean>;
   deleteClassifier: (name: string) => Promise<void>;
 }
@@ -170,6 +173,7 @@ export const useAppStore = create<AppStore>((set, get) => {
         ? get().projectFilter : state.projects[0]?.id ?? null,
       error: null,
     });
+    void get().refreshHashtags();
   };
 
   const refreshHistory = async (panelId: string) => {
@@ -188,6 +192,7 @@ export const useAppStore = create<AppStore>((set, get) => {
     tasks: [],
     lastCreatedTaskId: null,
     history: [],
+    hashtagGroups: [],
     activePanelId: null,
     currentView: "all",
     tabs: defaultTabs(),
@@ -639,6 +644,15 @@ export const useAppStore = create<AppStore>((set, get) => {
         const state = await api.restoreTask(historyId);
         applyState(state);
         await refreshHistory(state.activePanelId);
+      } catch (e) {
+        set({ error: String(e) });
+      }
+    },
+
+    refreshHashtags: async () => {
+      try {
+        const hashtagGroups = await api.hashtagOverview();
+        set({ hashtagGroups });
       } catch (e) {
         set({ error: String(e) });
       }
