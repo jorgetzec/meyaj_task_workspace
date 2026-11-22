@@ -24,13 +24,13 @@ interface RowProps {
   dragProps?: DragProps;
 }
 
-function HighlightedContent({ text }: { text: string }) {
+function HighlightedContent({ text, accent }: { text: string; accent?: string }) {
   const parts = text.split(/(#[\p{L}\p{N}_/-]+)/gu);
   return (
     <>
       {parts.map((p, i) =>
         p.startsWith("#") ? (
-          <span key={i} className="text-[var(--accent)]">
+          <span key={i} style={{ color: accent ?? "var(--accent)" }}>
             {p}
           </span>
         ) : (
@@ -60,6 +60,7 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
   const childCancelled = useRef(false);
   const [savingChild, setSavingChild] = useState(false);
   const hasChildren = node.children.length > 0;
+  const projectAccent = projects.find((project) => project.id === task.projectId)?.colorAccent ?? undefined;
 
   useEffect(() => {
     if (task.id !== lastCreatedTaskId) return;
@@ -253,6 +254,11 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
                       ? "bg-[var(--accent-dim)] text-[var(--accent)] hover:brightness-125"
                       : "bg-[var(--bg-active)] text-[var(--text-faint)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-dim)]"
                   }`}
+                  style={
+                    projectAccent && task.classifier
+                      ? { color: projectAccent, backgroundColor: `${projectAccent}22` }
+                      : undefined
+                  }
                 >
                   {task.classifier ?? "+"}
                 </button>
@@ -309,7 +315,7 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
                 }}
                 className="mono min-w-0 flex-1 cursor-text text-left text-[var(--text)]"
               >
-                <HighlightedContent text={task.content} />
+                <HighlightedContent text={task.content} accent={projectAccent} />
               </button>
             </div>
           )}
