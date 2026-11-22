@@ -237,7 +237,7 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
             />
           ) : (
             <div className="flex min-w-0 items-start gap-1.5 text-[0.8125rem] leading-[1.6]">
-              <span className="mono mt-[3px] shrink-0 rounded bg-[var(--bg-active)] px-1.5 py-px text-[0.625rem] font-medium text-[var(--text-dim)]">
+              <span className="mono mt-[3px] shrink-0 text-[0.625rem] text-[var(--text-faint)]">
                 {yyyymmdd(task.createdAt)}
               </span>
               <div ref={classifierRef} className="relative shrink-0">
