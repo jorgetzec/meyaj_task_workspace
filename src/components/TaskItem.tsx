@@ -5,7 +5,7 @@ import { GripVertical, Plus, Trash2, CornerUpLeft, FolderInput } from "lucide-re
 import { useAppStore } from "../stores/useAppStore";
 import { useT } from "../i18n";
 import type { TaskNode } from "../utils/tasks";
-import { classifierColor } from "../utils/colors";
+import { chipBackgroundColor, chipTextColor, classifierColor } from "../utils/colors";
 import { yyyymmdd } from "../utils/format";
 import Dialog from "./Dialog";
 
@@ -50,6 +50,7 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
   const updateTask = useAppStore((s) => s.updateTask);
   const setTaskClassifier = useAppStore((s) => s.setTaskClassifier);
   const classifiers = useAppStore((s) => s.classifiers);
+  const theme = useAppStore((s) => s.theme);
   const createTask = useAppStore((s) => s.createTask);
   const setTaskParent = useAppStore((s) => s.setTaskParent);
   const moveTask = useAppStore((s) => s.moveTask);
@@ -62,7 +63,11 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
   const childCancelled = useRef(false);
   const [savingChild, setSavingChild] = useState(false);
   const hasChildren = node.children.length > 0;
-  const chipColor = task.classifier ? classifierColor(task.classifier) : null;
+  const classifier = task.classifier
+    ? classifiers.find((item) => item.name === task.classifier)
+    : null;
+  const chipColor = task.classifier ? classifierColor(task.classifier, classifier?.colorAccent) : null;
+  const lightTheme = theme === "light";
 
   useEffect(() => {
     if (task.id !== lastCreatedTaskId && task.id !== focusTaskId) return;
@@ -258,7 +263,10 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
                   }`}
                   style={
                     chipColor && task.classifier
-                      ? { color: chipColor, backgroundColor: `${chipColor}22` }
+                      ? {
+                          color: chipTextColor(chipColor, lightTheme),
+                          backgroundColor: chipBackgroundColor(chipColor, lightTheme),
+                        }
                       : undefined
                   }
                 >
@@ -317,7 +325,10 @@ function TaskRow({ node, depth, dragProps }: RowProps) {
                 }}
                 className="mono min-w-0 flex-1 cursor-text text-left text-[var(--text)]"
               >
-                <HighlightedContent text={task.content} accent={chipColor ?? undefined} />
+                <HighlightedContent
+                  text={task.content}
+                  accent={chipColor ? chipTextColor(chipColor, lightTheme) : undefined}
+                />
               </button>
             </div>
           )}

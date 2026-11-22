@@ -73,7 +73,7 @@ async fn fetch_panels(pool: &SqlitePool) -> Result<Vec<Panel>, sqlx::Error> {
 }
 
 async fn fetch_classifiers(pool: &SqlitePool) -> Result<Vec<Classifier>, sqlx::Error> {
-    let rows = sqlx::query("SELECT id, name FROM classifier ORDER BY name")
+    let rows = sqlx::query("SELECT id, name, color_accent FROM classifier ORDER BY name")
         .fetch_all(pool)
         .await?;
 
@@ -82,6 +82,7 @@ async fn fetch_classifiers(pool: &SqlitePool) -> Result<Vec<Classifier>, sqlx::E
         .map(|r| Classifier {
             id: r.get("id"),
             name: r.get("name"),
+            color_accent: r.get("color_accent"),
         })
         .collect())
 }
@@ -1609,6 +1610,32 @@ pub async fn create_classifier(
 ) -> CmdResult<Vec<Classifier>> {
     let pool = &state.pool;
     ensure_classifier(pool, &name).await.map_err(err)?;
+    fetch_classifiers(pool).await.map_err(err)
+}
+
+#[tauri::command]
+pub async fn set_classifier_color(
+    name: String,
+    color_accent: Option<String>,
+    state: State<'_, AppState>,
+) -> CmdResult<Vec<Classifier>> {
+    let pool = &state.pool;
+    let color = color_accent
+        .map(|value| value.trim().to_lowercase())
+        .filter(|value| !value.is_empty());
+
+    if let Some(value) = color.as_deref() {
+        if !is_hex_color(value) {
+            return Err("Invalid classifier color".into());
+        }
+    }
+
+    sqlx::query("UPDATE classifier SET color_accent = ? WHERE name = ?")
+        .bind(color.as_deref())
+        .bind(name.trim().to_uppercase())
+        .execute(pool)
+        .await
+        .map_err(err)?;
     fetch_classifiers(pool).await.map_err(err)
 }
 

@@ -9,6 +9,7 @@ export interface Panel {
 export interface Classifier {
   id: string;
   name: string;
+  colorAccent: string | null;
 }
 
 export interface Project {

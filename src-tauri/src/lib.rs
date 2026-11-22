@@ -77,6 +77,7 @@ pub fn run() {
             commands::hashtag_overview,
             commands::list_classifiers,
             commands::create_classifier,
+            commands::set_classifier_color,
             commands::delete_classifier,
         ])
         .run(tauri::generate_context!())

@@ -43,10 +43,38 @@ function hashString(value: string): number {
   return hash;
 }
 
-/** Stable, name-derived color for a classifier (task type). */
-export function classifierColor(name: string): string {
+/** Stable fallback color for a classifier without an explicitly assigned color. */
+export function classifierColor(name: string, assignedColor?: string | null): string {
+  const assigned = assignedColor ? normalizeHex(assignedColor) : null;
+  if (assigned) return assigned;
   const normalized = name.trim().toUpperCase();
   return CLASSIFIER_PALETTE[hashString(normalized) % CLASSIFIER_PALETTE.length];
+}
+
+function expandedHex(hex: string): string {
+  const normalized = normalizeHex(hex) ?? "#7b9bff";
+  const bare = normalized.slice(1);
+  return bare.length === 3
+    ? bare
+        .split("")
+        .map((char) => char + char)
+        .join("")
+    : bare;
+}
+
+/** Darkens a chip label enough to stay legible on light surfaces. */
+export function chipTextColor(hex: string, lightTheme: boolean): string {
+  if (!lightTheme) return hex;
+  const bare = expandedHex(hex);
+  const channels = [0, 2, 4].map((start) => Math.round(parseInt(bare.slice(start, start + 2), 16) * 0.68));
+  return `#${channels.map((channel) => channel.toString(16).padStart(2, "0")).join("")}`;
+}
+
+/** A translucent chip background that works for either three- or six-digit hex. */
+export function chipBackgroundColor(hex: string, lightTheme: boolean): string {
+  const bare = expandedHex(hex);
+  const [r, g, b] = [0, 2, 4].map((start) => parseInt(bare.slice(start, start + 2), 16));
+  return `rgba(${r}, ${g}, ${b}, ${lightTheme ? 0.09 : 0.13})`;
 }
 
 /** White or near-black text that keeps readable contrast over `hex`. */

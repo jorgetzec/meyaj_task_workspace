@@ -3,6 +3,7 @@ import { Check, Undo2 } from "lucide-react";
 import { useAppStore } from "../stores/useAppStore";
 import { useT } from "../i18n";
 import { yyyymmdd } from "../utils/format";
+import { chipBackgroundColor, chipTextColor, classifierColor } from "../utils/colors";
 
 type SortKey = "completedAt" | "createdAt" | "project";
 
@@ -10,6 +11,8 @@ export default function HistoryView() {
   const t = useT();
   const history = useAppStore((s) => s.history);
   const restoreTask = useAppStore((s) => s.restoreTask);
+  const classifiers = useAppStore((s) => s.classifiers);
+  const theme = useAppStore((s) => s.theme);
   const [sortKey, setSortKey] = useState<SortKey>("completedAt");
 
   const sorted = useMemo(() => {
@@ -50,7 +53,13 @@ export default function HistoryView() {
       )}
 
       <ul className="space-y-0.5">
-        {sorted.map((h) => (
+        {sorted.map((h) => {
+          const classifier = h.classifier
+            ? classifiers.find((item) => item.name === h.classifier)
+            : null;
+          const color = h.classifier ? classifierColor(h.classifier, classifier?.colorAccent) : null;
+          const lightTheme = theme === "light";
+          return (
           <li
             key={h.id}
             className="group flex items-start gap-2.5 rounded px-2 py-1.5 hover:bg-[var(--bg-hover)]"
@@ -62,9 +71,21 @@ export default function HistoryView() {
               <span className="mono text-[0.8125rem] leading-[1.5] text-[var(--text-dim)]">
                 {h.snapshotContent.replace(/#[\p{L}\p{N}_/-]+/gu, "").trim()}
               </span>
-              <span className="ml-2 mono rounded bg-[var(--bg-active)] px-1.5 py-0.5 text-[0.625rem] font-semibold uppercase text-[var(--accent)]">
-                {h.classifier ?? ""}
-              </span>
+              {h.classifier && (
+                <span
+                  className="ml-2 mono rounded px-1.5 py-0.5 text-[0.625rem] font-semibold uppercase"
+                  style={
+                    color
+                      ? {
+                          color: chipTextColor(color, lightTheme),
+                          backgroundColor: chipBackgroundColor(color, lightTheme),
+                        }
+                      : undefined
+                  }
+                >
+                  {h.classifier}
+                </span>
+              )}
             </div>
             <span className="flex shrink-0 items-center gap-1 text-[0.6875rem] text-[var(--text-faint)]">
               <Check size={11} aria-hidden="true" />
@@ -80,7 +101,8 @@ export default function HistoryView() {
               <Undo2 size={13} aria-hidden="true" />
             </button>
           </li>
-        ))}
+          );
+        })}
       </ul>
     </div>
   );

@@ -80,6 +80,8 @@ export const api = {
   createClassifier: (name: string) =>
     invoke<Classifier[]>("create_classifier", { name }),
 
+  setClassifierColor: (name: string, colorAccent: string | null) =>
+    invoke<Classifier[]>("set_classifier_color", { name, colorAccent }),
 
   deleteClassifier: (name: string) =>
     invoke<Classifier[]>("delete_classifier", { name }),

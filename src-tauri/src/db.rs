@@ -45,8 +45,9 @@ pub(crate) async fn apply_schema(pool: &SqlitePool) -> Result<(), sqlx::Error> {
     sqlx::query(
         r#"
         CREATE TABLE IF NOT EXISTS classifier (
-            id   TEXT PRIMARY KEY,
-            name TEXT NOT NULL UNIQUE
+            id           TEXT PRIMARY KEY,
+            name         TEXT NOT NULL UNIQUE,
+            color_accent TEXT
         );
         "#,
     )
@@ -138,6 +139,18 @@ pub(crate) async fn apply_schema(pool: &SqlitePool) -> Result<(), sqlx::Error> {
             .await?;
     }
 
+    let classifier_columns = sqlx::query("PRAGMA table_info(classifier)")
+        .fetch_all(&mut *tx)
+        .await?;
+    if !classifier_columns
+        .iter()
+        .any(|column| column.get::<String, _>("name") == "color_accent")
+    {
+        sqlx::query("ALTER TABLE classifier ADD COLUMN color_accent TEXT")
+            .execute(&mut *tx)
+            .await?;
+    }
+
     // Only rooted trees with a known project have an unambiguous owner. UNION
     // bounds traversal even if legacy data contains cycles; unrooted rows stay intact.
     sqlx::query(
@@ -219,12 +232,26 @@ mod tests {
         .execute(&pool)
         .await
         .unwrap();
+        sqlx::query("CREATE TABLE classifier (id TEXT PRIMARY KEY, name TEXT NOT NULL UNIQUE)")
+            .execute(&pool)
+            .await
+            .unwrap();
+        sqlx::query("INSERT INTO classifier (id, name) VALUES ('cls-OLD', 'OLD')")
+            .execute(&pool)
+            .await
+            .unwrap();
         apply_schema(&pool).await.unwrap();
         let icon: Option<String> = sqlx::query_scalar("SELECT icon FROM project WHERE id = 'p'")
             .fetch_one(&pool)
             .await
             .unwrap();
         assert!(icon.is_none());
+        let classifier_color: Option<String> =
+            sqlx::query_scalar("SELECT color_accent FROM classifier WHERE id = 'cls-OLD'")
+                .fetch_one(&pool)
+                .await
+                .unwrap();
+        assert!(classifier_color.is_none());
         sqlx::query(
             "INSERT INTO task (id, content, created_at, project_id, parent_task_id) VALUES \
             ('root', 'Original root', '2026-01-01', 'p', NULL), \

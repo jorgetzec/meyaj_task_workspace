@@ -3,6 +3,7 @@ import { ChevronRight } from "lucide-react";
 import { useAppStore } from "../stores/useAppStore";
 import { useT } from "../i18n";
 import type { HashtagItem } from "../types";
+import { chipBackgroundColor, chipTextColor, classifierColor } from "../utils/colors";
 
 const MIN_W = 180;
 const MAX_W = 560;
@@ -12,6 +13,8 @@ export default function HashtagPanel() {
   const hashtagGroups = useAppStore((s) => s.hashtagGroups);
   const setActivePanel = useAppStore((s) => s.setActivePanel);
   const revealTask = useAppStore((s) => s.revealTask);
+  const classifiers = useAppStore((s) => s.classifiers);
+  const theme = useAppStore((s) => s.theme);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
 
   const [width, setWidth] = useState<number>(() => {
@@ -136,7 +139,14 @@ export default function HashtagPanel() {
 
               {!isCollapsed && (
                 <ul className="border-t border-[var(--border)] px-2.5 py-1.5">
-                  {group.items.map((item) => (
+                  {group.items.map((item) => {
+                    const classifier = item.classifier
+                      ? classifiers.find((entry) => entry.name === item.classifier)
+                      : null;
+                    const color = item.classifier
+                      ? classifierColor(item.classifier, classifier?.colorAccent)
+                      : null;
+                    return (
                     <li key={item.taskId}>
                       <button
                         type="button"
@@ -147,7 +157,17 @@ export default function HashtagPanel() {
                         <span className="min-w-0 flex-1">
                           <span className="flex items-center gap-1.5">
                             {item.classifier && (
-                              <span className="mono text-[0.625rem] uppercase tracking-wide text-[var(--text-faint)]">
+                              <span
+                                className="mono rounded px-1 py-px text-[0.625rem] uppercase tracking-wide"
+                                style={
+                                  color
+                                    ? {
+                                        color: chipTextColor(color, theme === "light"),
+                                        backgroundColor: chipBackgroundColor(color, theme === "light"),
+                                      }
+                                    : undefined
+                                }
+                              >
                                 {item.classifier}
                               </span>
                             )}
@@ -161,7 +181,8 @@ export default function HashtagPanel() {
                         </span>
                       </button>
                     </li>
-                  ))}
+                    );
+                  })}
                 </ul>
               )}
             </section>

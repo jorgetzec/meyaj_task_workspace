@@ -43,7 +43,9 @@ const es: Dict = {
   "color.presets": "Colores predefinidos",
   "color.hex": "Código hexadecimal",
   "color.none": "Sin color",
+  "color.auto": "automático",
   "color.invalid": "Escribe un color como #7b9bff o #7bf.",
+  "classifier.color": "Color del clasificador",
 
   "sidebar.panels": "Paneles",
   "sidebar.collapse": "Colapsar",
@@ -271,7 +273,9 @@ const en: Dict = {
   "color.presets": "Preset colors",
   "color.hex": "Hex code",
   "color.none": "No color",
+  "color.auto": "automatic",
   "color.invalid": "Enter a color like #7b9bff or #7bf.",
+  "classifier.color": "Classifier color",
 
   "sidebar.panels": "Panels",
   "sidebar.collapse": "Collapse",

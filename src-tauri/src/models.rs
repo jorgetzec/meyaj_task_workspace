@@ -16,6 +16,7 @@ pub struct Panel {
 pub struct Classifier {
     pub id: String,
     pub name: String,
+    pub color_accent: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

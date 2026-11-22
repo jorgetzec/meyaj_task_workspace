@@ -94,6 +94,7 @@ interface AppStore {
   restoreTask: (historyId: string) => Promise<void>;
   refreshHashtags: () => Promise<void>;
   createClassifier: (name: string) => Promise<boolean>;
+  setClassifierColor: (name: string, colorAccent: string | null) => Promise<boolean>;
   deleteClassifier: (name: string) => Promise<void>;
 }
 
@@ -674,6 +675,17 @@ export const useAppStore = create<AppStore>((set, get) => {
     createClassifier: async (name) => {
       try {
         const classifiers = await api.createClassifier(name);
+        set({ classifiers, error: null });
+        return true;
+      } catch (e) {
+        set({ error: String(e) });
+        return false;
+      }
+    },
+
+    setClassifierColor: async (name, colorAccent) => {
+      try {
+        const classifiers = await api.setClassifierColor(name, colorAccent);
         set({ classifiers, error: null });
         return true;
       } catch (e) {
